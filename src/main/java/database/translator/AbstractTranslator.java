@@ -1,5 +1,6 @@
-package database;
+package database.translator;
 
+import database.Translator;
 import database.sql.SQL;
 import database.sql.select.Select;
 

@@ -1,6 +1,5 @@
 package database.translator;
 
-import database.AbstractTranslator;
 import database.sql.Column;
 import database.sql.column.*;
 import database.sql.select.*;
@@ -56,6 +55,7 @@ public class MySQLTranslator extends AbstractTranslator implements TableVisitor,
             sb.append(" order by ");
             appendOrderByObject(sql.getOrderByObjectList());
         }
+        // limit
         if (sql.getLimit() != null) {
             sb.append(" limit ");
             appendLimitObject(sql.getLimit());
