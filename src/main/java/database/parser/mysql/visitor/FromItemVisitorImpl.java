@@ -23,7 +23,12 @@ public class FromItemVisitorImpl implements FromItemVisitor {
     
     @Override
     public void visit(SubSelect subSelect) {
-        throw new UnsupportedOperationException();
+        fromObject = new FromObject();
+        database.sql.select.SubSelect subSelectSQL = new database.sql.select.SubSelect();
+        SelectVisitorImpl selectVisitor = new SelectVisitorImpl(subSelectSQL);
+        subSelect.getSelectBody().accept(selectVisitor);
+        fromObject.setTable(subSelectSQL);
+        fromObject.setAlias(subSelect.getAlias().getName());
     }
     
     @Override

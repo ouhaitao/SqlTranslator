@@ -22,14 +22,8 @@ public class MySQLTranslator extends AbstractTranslator implements TableVisitor,
     
     private final StringBuilder sb;
     
-    /**
-     * 父节点控制子节点是否应该被括号包住
-     */
-    private boolean useParenthesis;
-    
     public MySQLTranslator() {
         sb = new StringBuilder();
-        useParenthesis = true;
     }
     
     @Override
@@ -142,9 +136,9 @@ public class MySQLTranslator extends AbstractTranslator implements TableVisitor,
     @Override
     public void visit(Function function) {
         sb.append(function.getName());
-        sb.append("(");
-        boolean useParenthesis = this.useParenthesis;
-        this.useParenthesis = false;
+        if (function.isUseParenthesis()) {
+            sb.append("(");
+        }
         List<Column> argList = CollectionUtils.nonNullAndDefaultEmpty(function.getArgList());
         Iterator<Column> iterator = argList.iterator();
         while (iterator.hasNext()) {
@@ -154,19 +148,16 @@ public class MySQLTranslator extends AbstractTranslator implements TableVisitor,
                 sb.append(", ");
             }
         }
-        this.useParenthesis = useParenthesis;
-        sb.append(")");
+        if (function.isUseParenthesis()) {
+            sb.append(")");
+        }
     }
     
     @Override
     public void visit(ParenthesisColumn parenthesisColumn) {
-        if (useParenthesis) {
-            sb.append("(");
-        }
+        sb.append("(");
         parenthesisColumn.getColumn().accept(this);
-        if (useParenthesis) {
-            sb.append(")");
-        }
+        sb.append(")");
     }
     
     @Override
@@ -176,13 +167,9 @@ public class MySQLTranslator extends AbstractTranslator implements TableVisitor,
     
     @Override
     public void visit(SubSelect subSelect) {
-        if (useParenthesis) {
-            sb.append("(");
-        }
+        sb.append("(");
         select(subSelect);
-        if (useParenthesis) {
-            sb.append(")");
-        }
+        sb.append(")");
     }
     
     @Override

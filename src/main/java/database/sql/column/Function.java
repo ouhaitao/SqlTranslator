@@ -23,6 +23,10 @@ public class Function implements Column {
      * 参数
      */
     private List<Column> argList;
+    /**
+     * 是否使用括号
+     */
+    private boolean useParenthesis = true;
     
     public void addArg(Column SelectColumn) {
         argList = CollectionUtils.nonNull(argList);

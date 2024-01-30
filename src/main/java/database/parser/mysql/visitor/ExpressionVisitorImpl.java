@@ -285,6 +285,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
         } else {
             function.setName("EXISTS");
         }
+        function.setUseParenthesis(false);
         existsExpression.getRightExpression().accept(this);
         function.addArg(getColumn());
         column = function;

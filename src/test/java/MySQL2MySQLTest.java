@@ -13,10 +13,12 @@ public class MySQL2MySQLTest {
         "\tsource.name as sourceName,\n" +
         "\tdate_sub(now(), interval 1 hour),\n" +
         "\tconcat('concatString', source.name),\n" +
-        "\t(select id from a where id = 1) as aId\n" +
+        "\t(select id from a where id = 1) as aId,\n" +
+        "\tdate_sub((now()), interval 1 hour)\n" +
         "FROM\n" +
         "\tfm_common_source source\n" +
         "\tleft join a tableA on source.id = tableA.id and (source.id = tableA.id)\n" +
+        "\tleft join (select * from a) tableSubSelect on source.id = tableSubSelect.id\n" +
         "WHERE\n" +
         "\t(source.id >= 1\n" +
         "\tAND source.id <= 10)\n" +
@@ -46,7 +48,8 @@ public class MySQL2MySQLTest {
         MySQLParser parser = new MySQLParser();
         SQL parse = parser.parse(sql);
         MySQLTranslator translator = new MySQLTranslator();
-        System.out.println(translator.translate(parse));
+        String translate = translator.translate(parse);
+        System.out.println(translate);
     }
 
 }
