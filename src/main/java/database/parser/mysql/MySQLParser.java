@@ -17,11 +17,12 @@ public class MySQLParser implements Parser {
     
     @Override
     public SQL parse(String originSQL) {
-        Statement statement = null;
+        Statement statement;
         try {
             statement = CCJSqlParserUtil.parse(originSQL);
         } catch (JSQLParserException e) {
             e.printStackTrace();
+            return null;
         }
         if (statement instanceof net.sf.jsqlparser.statement.select.Select) {
             return parseSelect((net.sf.jsqlparser.statement.select.Select) statement);

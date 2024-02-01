@@ -10,6 +10,8 @@ public interface ColumnVisitor {
     
     void visit(CombinationColumn combinationColumn);
     
+    void visit(DatabaseFunction databaseFunction);
+    
     void visit(Function function);
     
     void visit(ParenthesisColumn parenthesisColumn);

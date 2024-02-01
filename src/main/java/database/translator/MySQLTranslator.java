@@ -1,6 +1,7 @@
 package database.translator;
 
 import database.sql.Column;
+import database.sql.Database;
 import database.sql.column.*;
 import database.sql.select.*;
 import database.sql.table.FromObject;
@@ -17,7 +18,7 @@ import java.util.Optional;
 /**
  * @author parry 2024/01/29
  */
-public class MySQLTranslator extends AbstractTranslator implements TableVisitor, ColumnVisitor {
+public class MySQLTranslator extends AbstractTranslator {
     
     private final StringBuilder sb;
     
@@ -182,52 +183,17 @@ public class MySQLTranslator extends AbstractTranslator implements TableVisitor,
         sb.append(numberColumn.getValue());
     }
     
-    private String getCombinationColumnOperateString(CombinationColumn.Operate operate) {
-        switch (operate) {
-            case EQUAL:
-                return "=";
-            case NOT_EQUAL:
-                return "!=";
-            case GREATER_THAN:
-                return ">";
-            case GREATER_EQUAL:
-                return ">=";
-            case LESS_THAN:
-                return "<";
-            case LESS_EQUAL:
-                return "<=";
-            case LIKE:
-                return "LIKE";
-            case AND:
-                return "AND";
-            case OR:
-                return "OR";
-            default:
-                throw new UnsupportedOperationException();
-        }
+    
+    @Override
+    public Function translate(DatabaseFunction source) {
+        return source.getFunction();
     }
     
-    private String getJoinTypeString(JoinObject.JoinType joinType) {
-        switch (joinType) {
-            case LEFT_JOIN:
-                return "LEFT JOIN";
-            case INNER_JOIN:
-                return "INNER JOIN";
-            case RIGHT_JOIN:
-                return "RIGHT JOIN";
-            default:
-                throw new UnsupportedOperationException();
+    @Override
+    public boolean support(Database database) {
+        if (database == Database.MYSQL) {
+            return true;
         }
-    }
-    
-    private String getOrderTypeString(OrderByObject.OrderType orderType) {
-        switch (orderType) {
-            case ASC:
-                return "ASC";
-            case DESC:
-                return "DESC";
-            default:
-                throw new UnsupportedOperationException();
-        }
+        return false;
     }
 }

@@ -1,6 +1,7 @@
 package database.parser.mysql.visitor;
 
 import database.sql.Column;
+import database.sql.Database;
 import database.sql.column.*;
 import database.sql.column.Function;
 import database.sql.select.SubSelect;
@@ -53,7 +54,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
             )
         );
         
-        column = sqlFunction;
+        column = new DatabaseFunction(sqlFunction, Database.MYSQL);
     }
     
     @Override
@@ -288,7 +289,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
         function.setUseParenthesis(false);
         existsExpression.getRightExpression().accept(this);
         function.addArg(getColumn());
-        column = function;
+        column = new DatabaseFunction(function, Database.MYSQL);
     }
     
     @Override
