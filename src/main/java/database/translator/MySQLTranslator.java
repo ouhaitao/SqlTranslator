@@ -183,6 +183,23 @@ public class MySQLTranslator extends AbstractTranslator {
         sb.append(numberColumn.getValue());
     }
     
+    @Override
+    public void visit(IntervalColumn intervalColumn) {
+        sb.append("INTERVAL ").append(intervalColumn.getNum()).append(" ").append(intervalColumn.getUnit());
+    }
+    
+    @Override
+    public void visit(ExistsColumn existsColumn) {
+        sb.append(existsColumn.isNot() ? "NOT EXISTS" : "EXISTS");
+        existsColumn.getColumn().accept(this);
+    }
+    
+    @Override
+    public void visit(NotColumn notColumn) {
+        sb.append("NOT ");
+        notColumn.getColumn().accept(this);
+    }
+    
     
     @Override
     public Function translate(DatabaseFunction source) {

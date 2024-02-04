@@ -257,7 +257,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     
     @Override
     public void visit(net.sf.jsqlparser.schema.Column tableColumn) {
-        column = new StringColumn(tableColumn.toString());
+        column = new StringColumn(removeBackQuote(tableColumn.toString()));
     }
     
     @Override
@@ -280,16 +280,9 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     
     @Override
     public void visit(ExistsExpression existsExpression) {
-        Function function = new Function();
-        if (existsExpression.isNot()) {
-            function.setName("NOT EXISTS");
-        } else {
-            function.setName("EXISTS");
-        }
-        function.setUseParenthesis(false);
+        boolean not = existsExpression.isNot();
         existsExpression.getRightExpression().accept(this);
-        function.addArg(getColumn());
-        column = new DatabaseFunction(function, Database.MYSQL);
+        column = new ExistsColumn(not, getColumn());
     }
     
     @Override
@@ -349,7 +342,9 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     
     @Override
     public void visit(IntervalExpression iexpr) {
-        column = new StringColumn(iexpr.toString());
+        int num = Integer.parseInt(iexpr.getParameter());
+        String unitStr = iexpr.getIntervalType();
+        column = new IntervalColumn(num, unitStr);
     }
     
     @Override
@@ -429,7 +424,8 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     
     @Override
     public void visit(NotExpression aThis) {
-        throw new UnsupportedOperationException();
+        aThis.getExpression().accept(this);
+        column = new NotColumn(getColumn());
     }
     
     @Override
@@ -519,5 +515,12 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     
     public Column getColumn() {
         return column;
+    }
+    
+    private String removeBackQuote(String column) {
+        if (column.charAt(0) != '`' || column.charAt(column.length() - 1) != '`') {
+            return column;
+        }
+        return column.substring(1, column.length() - 1);
     }
 }

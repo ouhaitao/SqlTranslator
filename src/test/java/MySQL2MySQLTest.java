@@ -9,7 +9,7 @@ import org.junit.Test;
 public class MySQL2MySQLTest {
 
     private final String sql = "SELECT\n" +
-        "\tsource.id,\n" +
+        "\t`source.id`,\n" +
         "\tsource.name as sourceName,\n" +
         "\tdate_sub(now(), interval 1 hour),\n" +
         "\tconcat('concatString', source.name),\n" +
@@ -23,7 +23,7 @@ public class MySQL2MySQLTest {
         "\t(source.id >= 1\n" +
         "\tAND source.id <= 10)\n" +
         "\tand exists(select 1)" +
-        "\tand exists(exists(exists(select 1)))\n" +
+        "\tand exists(exists(not exists(select 1)))\n" +
         "GROUP BY\n" +
         "\tsource.id\n" +
         "order by\n" +

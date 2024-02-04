@@ -21,4 +21,10 @@ public interface ColumnVisitor {
     void visit(StringValue stringValue);
     
     void visit(NumberColumn numberColumn);
+    
+    void visit(IntervalColumn intervalColumn);
+    
+    void visit(ExistsColumn existsColumn);
+    
+    void visit(NotColumn notColumn);
 }
