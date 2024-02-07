@@ -26,13 +26,13 @@ public abstract class AbstractTranslator implements Translator, FunctionTranslat
             case SELECT:
                 return select((Select) originSQL);
             default:
-                throw new IllegalStateException("错误的SQL类型");
+                throw new UnsupportedOperationException("不支持的SQL类型:" + originSQL.getType());
         }
     }
     
     @Override
     public void visit(DatabaseFunction databaseFunction) {
-        if (!support(databaseFunction.getDatabase())) {
+        if (!support(databaseFunction)) {
             throw new UnsupportedOperationException("不支持的函数:" + databaseFunction.getDatabase() + "." + databaseFunction.getFunction().getName());
         }
         Function translate = translate(databaseFunction);
@@ -59,6 +59,10 @@ public abstract class AbstractTranslator implements Translator, FunctionTranslat
                 return "AND";
             case OR:
                 return "OR";
+            case IS_NULL:
+                return "IS NULL";
+            case IS_NOT_NULL:
+                return "IS NOT NULL";
             default:
                 throw new UnsupportedOperationException();
         }

@@ -27,4 +27,8 @@ public interface ColumnVisitor {
     void visit(ExistsColumn existsColumn);
     
     void visit(NotColumn notColumn);
+    
+    void visit(CaseColumn caseColumn);
+    
+    void visit(WhenColumn whenColumn);
 }

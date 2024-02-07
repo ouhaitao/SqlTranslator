@@ -21,6 +21,7 @@ public class CollectionUtils {
     }
     
     public static <T> List<T> nonNull(List<T> list, Supplier<List<T>> supplier) {
-        return Optional.ofNullable(list).orElseGet(supplier);
+        return list == null ? supplier.get() : list;
     }
+
 }

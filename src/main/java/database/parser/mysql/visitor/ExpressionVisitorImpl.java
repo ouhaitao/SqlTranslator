@@ -151,7 +151,13 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     
     @Override
     public void visit(OrExpression orExpression) {
-        throw new UnsupportedOperationException();
+        CombinationColumn combinationColumn = new CombinationColumn();
+        combinationColumn.setOperate(CombinationColumn.Operate.OR);
+        orExpression.getLeftExpression().accept(this);
+        combinationColumn.setLeft(getColumn());
+        orExpression.getRightExpression().accept(this);
+        combinationColumn.setRight(getColumn());
+        column = combinationColumn;
     }
     
     @Override
@@ -209,7 +215,11 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     
     @Override
     public void visit(IsNullExpression isNullExpression) {
-        throw new UnsupportedOperationException();
+        CombinationColumn combinationColumn = new CombinationColumn();
+        combinationColumn.setOperate(isNullExpression.isNot() ? CombinationColumn.Operate.IS_NOT_NULL : CombinationColumn.Operate.IS_NULL);
+        isNullExpression.getLeftExpression().accept(this);
+        combinationColumn.setLeft(getColumn());
+        column = combinationColumn;
     }
     
     @Override
@@ -270,12 +280,30 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     
     @Override
     public void visit(CaseExpression caseExpression) {
-        throw new UnsupportedOperationException();
+        CaseColumn caseColumn = new CaseColumn();
+        Optional.ofNullable(caseExpression.getSwitchExpression()).ifPresent(switchExpress -> {
+            switchExpress.accept(this);
+            caseColumn.setColumn(getColumn());
+        });
+        caseExpression.getWhenClauses().forEach(whenClause -> {
+            whenClause.accept(this);
+            caseColumn.addWhenColumn((WhenColumn) getColumn());
+        });
+        Optional.ofNullable(caseExpression.getElseExpression()).ifPresent(elseExpress -> {
+            elseExpress.accept(this);
+            caseColumn.setElseColumn(getColumn());
+        });
+        column = caseColumn;
     }
     
     @Override
     public void visit(WhenClause whenClause) {
-        throw new UnsupportedOperationException();
+        WhenColumn whenColumn = new WhenColumn();
+        whenClause.getWhenExpression().accept(this);
+        whenColumn.setWhenColumn(getColumn());
+        whenClause.getThenExpression().accept(this);
+        whenColumn.setThenColumn(getColumn());
+        column = whenColumn;
     }
     
     @Override

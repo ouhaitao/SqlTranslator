@@ -7,8 +7,6 @@ import database.sql.select.*;
 import database.sql.table.FromObject;
 import database.sql.table.JoinObject;
 import database.sql.table.StringTable;
-import database.sql.visitor.ColumnVisitor;
-import database.sql.visitor.TableVisitor;
 import util.CollectionUtils;
 
 import java.util.Iterator;
@@ -130,8 +128,11 @@ public class MySQLTranslator extends AbstractTranslator {
     @Override
     public void visit(CombinationColumn combinationColumn) {
         combinationColumn.getLeft().accept(this);
-        sb.append(" ").append(getCombinationColumnOperateString(combinationColumn.getOperate())).append(" ");
-        combinationColumn.getRight().accept(this);
+        sb.append(" ").append(getCombinationColumnOperateString(combinationColumn.getOperate()));
+        Optional.ofNullable(combinationColumn.getRight()).ifPresent(right -> {
+            sb.append(" ");
+            right.accept(this);
+        });
     }
     
     @Override
@@ -200,6 +201,29 @@ public class MySQLTranslator extends AbstractTranslator {
         notColumn.getColumn().accept(this);
     }
     
+    @Override
+    public void visit(CaseColumn caseColumn) {
+        sb.append("CASE ");
+        Optional.ofNullable(caseColumn.getColumn()).ifPresent(column -> {
+            column.accept(this);
+            sb.append(" ");
+        });
+        caseColumn.getWhenColumnList().forEach(column -> column.accept(this));
+        Optional.ofNullable(caseColumn.getElseColumn()).ifPresent(column -> {
+            sb.append(" ELSE ");
+            caseColumn.getElseColumn().accept(this);
+        });
+        sb.append(" END");
+    }
+    
+    @Override
+    public void visit(WhenColumn whenColumn) {
+        sb.append("WHEN ");
+        whenColumn.getWhenColumn().accept(this);
+        sb.append(" THEN ");
+        whenColumn.getThenColumn().accept(this);
+    }
+    
     
     @Override
     public Function translate(DatabaseFunction source) {
@@ -207,10 +231,7 @@ public class MySQLTranslator extends AbstractTranslator {
     }
     
     @Override
-    public boolean support(Database database) {
-        if (database == Database.MYSQL) {
-            return true;
-        }
-        return false;
+    public boolean support(DatabaseFunction databaseFunction) {
+        return databaseFunction.getDatabase() == Database.MYSQL;
     }
 }

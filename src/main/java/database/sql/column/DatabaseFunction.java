@@ -8,7 +8,7 @@ import lombok.Setter;
 
 /**
  * @author parry 2024/02/01
- * Function包装类，带有数据库表示
+ * Function包装类，带有数据库标识
  */
 @Getter
 @Setter
