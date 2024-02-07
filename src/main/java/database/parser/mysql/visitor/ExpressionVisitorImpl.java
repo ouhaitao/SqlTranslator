@@ -64,7 +64,9 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     
     @Override
     public void visit(JdbcParameter jdbcParameter) {
-        throw new UnsupportedOperationException();
+        JdbcParameterColumn jdbcParameterColumn = new JdbcParameterColumn();
+        jdbcParameterColumn.setIndex(jdbcParameterColumn.getIndex());
+        column = jdbcParameterColumn;
     }
     
     @Override

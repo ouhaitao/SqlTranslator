@@ -1,4 +1,4 @@
-package test;
+package benchmark;
 
 import database.parser.mysql.MySQLParser;
 import database.sql.SQL;

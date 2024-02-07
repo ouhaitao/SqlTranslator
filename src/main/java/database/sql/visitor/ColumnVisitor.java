@@ -31,4 +31,6 @@ public interface ColumnVisitor {
     void visit(CaseColumn caseColumn);
     
     void visit(WhenColumn whenColumn);
+    
+    void visit(JdbcParameterColumn jdbcParameterColumn);
 }

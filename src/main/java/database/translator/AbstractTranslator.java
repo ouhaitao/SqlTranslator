@@ -6,6 +6,7 @@ import database.sql.SQL;
 import database.sql.column.CombinationColumn;
 import database.sql.column.DatabaseFunction;
 import database.sql.column.Function;
+import database.sql.column.JdbcParameterColumn;
 import database.sql.select.OrderByObject;
 import database.sql.select.Select;
 import database.sql.table.JoinObject;

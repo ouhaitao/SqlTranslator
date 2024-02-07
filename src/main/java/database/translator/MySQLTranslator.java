@@ -224,6 +224,11 @@ public class MySQLTranslator extends AbstractTranslator {
         whenColumn.getThenColumn().accept(this);
     }
     
+    @Override
+    public void visit(JdbcParameterColumn jdbcParameterColumn) {
+        sb.append("?");
+    }
+    
     
     @Override
     public Function translate(DatabaseFunction source) {
