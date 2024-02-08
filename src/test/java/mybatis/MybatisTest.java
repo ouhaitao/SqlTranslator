@@ -24,8 +24,7 @@ public class MybatisTest {
     private TestMapper testMapper;
     
     @Before
-    public void mapper() throws IOException {
-//        创建数据源
+    public void mapper() {
         MysqlDataSource dataSource = new MysqlDataSource();
         dataSource.setUrl("jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8");
         dataSource.setUser("root");

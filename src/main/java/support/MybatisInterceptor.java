@@ -27,6 +27,17 @@ import java.util.Properties;
 })
 public class MybatisInterceptor implements Interceptor {
     
+    private Field sqlSourceField;
+    
+    public MybatisInterceptor() {
+        try {
+            sqlSourceField = MappedStatement.class.getDeclaredField("sqlSource");
+            sqlSourceField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
+    
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         MappedStatement statement = (MappedStatement) invocation.getArgs()[0];
@@ -58,8 +69,6 @@ public class MybatisInterceptor implements Interceptor {
         StaticSqlSource staticSqlSource = new StaticSqlSource(statement.getConfiguration(), translateSql, boundSql.getParameterMappings());
         
         // 反射修改sqlSource
-        Field sqlSourceField = statement.getClass().getDeclaredField("sqlSource");
-        sqlSourceField.setAccessible(true);
         sqlSourceField.set(statement, staticSqlSource);
     }
     
