@@ -18,14 +18,22 @@ import java.util.Optional;
  */
 public class MySQLTranslator extends AbstractTranslator {
     
-    private final StringBuilder sb;
+    private StringBuilder sb;
     
     public MySQLTranslator() {
-        sb = new StringBuilder();
     }
     
     @Override
     public String select(Select sql) {
+        if (sb == null) {
+            this.sb = new StringBuilder();
+        }
+        String newsSql = select(sql, sb);
+        sb = null;
+        return newsSql;
+    }
+    
+    private String select(Select sql, final StringBuilder sb) {
         sb.append("select");
         // behavior
         List<Select.Behavior> behaviorList = CollectionUtils.nonNullAndDefaultEmpty(sql.getBehaviorList());
@@ -35,30 +43,30 @@ public class MySQLTranslator extends AbstractTranslator {
         List<SelectObject> selectObjectList = CollectionUtils.nonNullAndDefaultEmpty(sql.getSelectObjectList());
         appendSelectObject(selectObjectList);
         // fromObject
-        if (sql.getFromObject() != null) {
+        Optional.ofNullable(sql.getFromObject()).ifPresent(fromObject -> {
             sb.append(" from ");
-            appendFromObject(sql.getFromObject());
-        }
+            appendFromObject(fromObject);
+        });
         // whereObject
-        if (sql.getWhere() != null) {
+        Optional.ofNullable(sql.getWhere()).ifPresent(where -> {
             sb.append(" where ");
-            appendWhereObject(sql.getWhere());
-        }
+            appendWhereObject(where);
+        });
         // groupBy
-        if (sql.getGroupByObjectList() != null) {
+        Optional.ofNullable(sql.getGroupByObjectList()).ifPresent(groupByObjectList -> {
             sb.append(" group by ");
-            appendGroupByObject(sql.getGroupByObjectList());
-        }
+            appendGroupByObject(groupByObjectList);
+        });
         // orderBy
-        if (sql.getOrderByObjectList() != null) {
+        Optional.ofNullable(sql.getOrderByObjectList()).ifPresent(orderByObjectList -> {
             sb.append(" order by ");
-            appendOrderByObject(sql.getOrderByObjectList());
-        }
+            appendOrderByObject(orderByObjectList);
+        });
         // limit
-        if (sql.getLimit() != null) {
+        Optional.ofNullable(sql.getLimit()).ifPresent(limitObject -> {
             sb.append(" limit ");
-            appendLimitObject(sql.getLimit());
-        }
+            appendLimitObject(limitObject);
+        });
         return sb.toString();
     }
     
@@ -170,7 +178,7 @@ public class MySQLTranslator extends AbstractTranslator {
     @Override
     public void visit(SubSelect subSelect) {
         sb.append("(");
-        select(subSelect);
+        select(subSelect, sb);
         sb.append(")");
     }
     

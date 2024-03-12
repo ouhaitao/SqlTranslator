@@ -18,7 +18,7 @@ public class Select extends SQL {
     
     /**
      * 查询的行为
-     * e.g. distinct, SQL_NO_CACHE
+     * e.g. DISTINCT, SQL_NO_CACHE
      */
     private List<Behavior> behaviorList;
     
