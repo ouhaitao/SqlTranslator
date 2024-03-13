@@ -11,9 +11,8 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.junit.Before;
 import org.junit.Test;
-import support.MybatisInterceptor;
+import util.SqlTranslatorUtil;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -32,7 +31,7 @@ public class MybatisTest {
         TransactionFactory transactionFactory = new JdbcTransactionFactory();
         Environment environment = new Environment("development", transactionFactory, dataSource);
         Configuration configuration = new Configuration(environment);
-        configuration.addInterceptor(new MybatisInterceptor());
+        configuration.addInterceptor(SqlTranslatorUtil.getMybatisInterceptor());
         configuration.addMapper(TestMapper.class);
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
         testMapper = sqlSessionFactory.openSession(true).getMapper(TestMapper.class);

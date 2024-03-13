@@ -15,6 +15,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import support.MybatisInterceptor;
+import util.SqlTranslatorUtil;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +64,7 @@ public class MybatisBenchmarkTest {
     @Setup
     public void setMapperWithInterceptor() {
         Configuration configuration = new Configuration(environment);
-        configuration.addInterceptor(new MybatisInterceptor());
+        configuration.addInterceptor(SqlTranslatorUtil.getMybatisInterceptor());
         configuration.addMapper(TestMapper.class);
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
         mapperWithInterceptor = sqlSessionFactory.openSession(true).getMapper(TestMapper.class);

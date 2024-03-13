@@ -29,8 +29,11 @@ public class MybatisInterceptor implements Interceptor {
     
     private Field sqlSourceField;
     
-    public MybatisInterceptor() {
+    private SqlTranslator sqlTranslator;
+    
+    public MybatisInterceptor(SqlTranslator sqlTranslator) {
         try {
+            this.sqlTranslator = sqlTranslator;
             sqlSourceField = MappedStatement.class.getDeclaredField("sqlSource");
             sqlSourceField.setAccessible(true);
         } catch (NoSuchFieldException e) {
@@ -46,19 +49,10 @@ public class MybatisInterceptor implements Interceptor {
             parameter = invocation.getArgs()[1];
         }
         BoundSql boundSql = statement.getBoundSql(parameter);
-        String translateSql = translate(boundSql.getSql());
+        String translateSql = sqlTranslator.translate(boundSql.getSql(), statement.getId());
         updateSql(statement, boundSql, translateSql);
         
         return invocation.proceed();
-    }
-    
-    /**
-     * 翻译
-     */
-    private String translate(String originSql) {
-        MySQLParser parser = new MySQLParser();
-        SQL parse = parser.parse(originSql);
-        return new MySQLTranslator().translate(parse);
     }
     
     /**
