@@ -2,16 +2,12 @@ package database.parser.mysql.visitor;
 
 import database.sql.column.CombinationColumn;
 import database.sql.column.NumberColumn;
-import database.sql.column.StringColumn;
-import database.sql.select.GroupByObject;
-import database.sql.select.LimitObject;
-import database.sql.select.OrderByObject;
 import database.sql.select.Select;
+import database.sql.select.*;
 import database.sql.table.JoinObject;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.values.ValuesStatement;
-
-import java.util.Collections;
 
 /**
  * @author parry 2024/01/22
@@ -26,6 +22,9 @@ public class SelectVisitorImpl implements SelectVisitor {
     
     @Override
     public void visit(PlainSelect plainSelect) {
+        if (plainSelect.getDistinct() != null) {
+            select.addBehaviorObject(Select.Behavior.DISTINCT);
+        }
         // select的列
         SelectItemVisitorImpl selectItemVisitor = new SelectItemVisitorImpl();
         plainSelect.getSelectItems().forEach(item -> {
@@ -100,6 +99,14 @@ public class SelectVisitorImpl implements SelectVisitor {
             rowCount = rowCountColumn.getValue();
             LimitObject limitObject = new LimitObject(offset, rowCount);
             select.setLimit(limitObject);
+        }
+    
+        // having
+        Expression having = plainSelect.getHaving();
+        if (having != null) {
+            having.accept(expressionVisitor);
+            HavingObject havingObject = new HavingObject(expressionVisitor.getColumn());
+            select.setHavingObjectList(havingObject);
         }
     }
     

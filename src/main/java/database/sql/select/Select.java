@@ -33,7 +33,7 @@ public class Select extends SQL {
     
     private LimitObject limit;
     
-    private List<HavingObject> havingObjectList;
+    private HavingObject havingObjectList;
     
     public Select() {
         this(Type.SELECT);
@@ -41,6 +41,11 @@ public class Select extends SQL {
     
     protected Select(Type type) {
         super(type);
+    }
+    
+    public void addBehaviorObject(Behavior behavior) {
+        behaviorList = CollectionUtils.nonNull(behaviorList);
+        behaviorList.add(behavior);
     }
     
     public void addSelectObject(SelectObject selectObject) {

@@ -57,6 +57,11 @@ public class MySQLTranslator extends AbstractTranslator {
             sb.append(" group by ");
             appendGroupByObject(groupByObjectList);
         });
+        // having
+        Optional.ofNullable(sql.getHavingObjectList()).ifPresent(havingObject -> {
+            sb.append(" having ");
+            appendHavingObject(havingObject);
+        });
         // orderBy
         Optional.ofNullable(sql.getOrderByObjectList()).ifPresent(orderByObjectList -> {
             sb.append(" order by ");
@@ -128,6 +133,10 @@ public class MySQLTranslator extends AbstractTranslator {
         }
     }
     
+    private void appendHavingObject(HavingObject havingObject) {
+        havingObject.getColumn().accept(this);
+    }
+    
     @Override
     public void visit(StringColumn stringColumn) {
         sb.append(stringColumn.getColumn());
@@ -148,6 +157,9 @@ public class MySQLTranslator extends AbstractTranslator {
         sb.append(function.getName());
         if (function.isUseParenthesis()) {
             sb.append("(");
+        }
+        if (function.isDistinct()) {
+            sb.append("DISTINCT ");
         }
         List<Column> argList = CollectionUtils.nonNullAndDefaultEmpty(function.getArgList());
         Iterator<Column> iterator = argList.iterator();

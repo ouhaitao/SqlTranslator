@@ -6,6 +6,7 @@ import database.sql.Database;
 import database.sql.SQL;
 import database.translator.AbstractTranslator;
 import database.translator.MySQLTranslator;
+import exception.SqlTranslateException;
 import lombok.Getter;
 import org.apache.ibatis.mapping.MappedStatement;
 
@@ -44,7 +45,7 @@ public class SqlTranslator {
         translatorFactory = ThreadLocal.withInitial(this::newTranslator);
     }
     
-    public String translate(String originSql, String mapperId) {
+    public String translate(String originSql, String mapperId) throws SqlTranslateException {
         if (ignoreMapperIdSet.contains(mapperId)) {
             return originSql;
         }

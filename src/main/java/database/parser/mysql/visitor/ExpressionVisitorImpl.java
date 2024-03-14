@@ -43,6 +43,7 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     public void visit(net.sf.jsqlparser.expression.Function function) {
         Function sqlFunction = new Function();
         sqlFunction.setName(function.getName());
+        sqlFunction.setDistinct(function.isDistinct());
     
         ExpressionList parameters = function.getParameters();
         ExpressionVisitorImpl visitor = new ExpressionVisitorImpl();

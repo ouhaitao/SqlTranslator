@@ -11,6 +11,8 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.Properties;
@@ -26,6 +28,8 @@ import java.util.Properties;
         RowBounds.class, ResultHandler.class})
 })
 public class MybatisInterceptor implements Interceptor {
+    
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     
     private Field sqlSourceField;
     
@@ -50,6 +54,9 @@ public class MybatisInterceptor implements Interceptor {
         }
         BoundSql boundSql = statement.getBoundSql(parameter);
         String translateSql = sqlTranslator.translate(boundSql.getSql(), statement.getId());
+        if (logger.isDebugEnabled()) {
+            logger.debug("原始SQL:{} 转译后SQL:{}", boundSql.getSql(), translateSql);
+        }
         updateSql(statement, boundSql, translateSql);
         
         return invocation.proceed();

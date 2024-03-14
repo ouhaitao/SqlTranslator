@@ -3,6 +3,7 @@ package benchmark;
 import database.parser.mysql.MySQLParser;
 import database.sql.SQL;
 import database.translator.MySQLTranslator;
+import exception.SqlTranslateException;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
@@ -20,7 +21,7 @@ public class BenchmarkModeTest {
     
     
     @Benchmark
-    public void testMethod() {
+    public void testMethod() throws SqlTranslateException {
         MySQLParser parser = new MySQLParser();
         SQL parse = parser.parse("SELECT\n" +
             "\tsource.id,\n" +

@@ -28,6 +28,8 @@ public class Function implements Column {
      */
     private boolean useParenthesis = true;
     
+    private boolean distinct = false;
+    
     public void addArg(Column SelectColumn) {
         argList = CollectionUtils.nonNull(argList);
         argList.add(SelectColumn);
