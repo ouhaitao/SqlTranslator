@@ -14,7 +14,6 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import support.MybatisInterceptor;
 import util.SqlTranslatorUtil;
 
 import java.util.Map;
@@ -72,12 +71,12 @@ public class MybatisBenchmarkTest {
     
     @Benchmark
     public void noInterceptor() {
-        Map<Object, Object> select = mapper.select(1);
+        Map<Object, Object> select = mapper.mysqlSelect(1);
     }
     
     @Benchmark
     public void haveInterceptor() {
-        Map<Object, Object> select = mapperWithInterceptor.select(1);
+        Map<Object, Object> select = mapperWithInterceptor.mysqlSelect(1);
     }
     
     public static void main(String[] args) throws RunnerException {

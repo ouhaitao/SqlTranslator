@@ -6,5 +6,13 @@ import java.util.Map;
 
 public interface TestMapper {
     
-    Map<Object, Object> select(@Param("id") Integer id);
+    /**
+     * mysql
+     */
+    Map<Object, Object> mysqlSelect(@Param("id") Integer id);
+    
+    /**
+     * 达梦
+     */
+    Map<Object, Object> dmSelect(@Param("id") Integer id);
 }
