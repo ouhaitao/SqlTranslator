@@ -49,7 +49,8 @@ public abstract class SQL {
         UPDATE,
         DELETE,
         SELECT,
-        SUB_SELECT
+        SUB_SELECT,
+        STRING
     }
     
     public enum Behavior {
