@@ -9,7 +9,7 @@ import org.junit.Test;
  */
 public class MySQL2MySQLTest {
 
-    private final String sql = "SELECT distinct \n" +
+    private final String selectSql = "SELECT distinct \n" +
         "\tsource.*,\n" +
         "\t`source.id`,\n" +
         "\tsource.name as sourceName,\n" +
@@ -33,6 +33,7 @@ public class MySQL2MySQLTest {
         "\tand exists(exists(not exists(select 1)))\n" +
         "\tand source.id is null\n" +
         "\tand source.id is not null\n" +
+        "\tand source.type in (select id from typeTable)\n" +
         "GROUP BY\n" +
         "\tsource.id\n" +
         "\thaving count(*) > 1 and count(*) < 3\n" +
@@ -41,15 +42,34 @@ public class MySQL2MySQLTest {
         "\ttableA.id desc\n" +
         "limit 5\n";
     
+    private final String updateSql = "update table1 a left join table2 b on a.id = b.id\n" +
+        "set\n" +
+        "a.column1 = '1',\n" +
+        "a.`column2` = '2',\n" +
+        "a.column3 = b.column3,\n" +
+        "a.column4 = (select id from table3 where id = a.id),\n" +
+        "a.column5 = a.column5 + 1,\n" +
+        "a.column6 = (a.column6 - 1)\n" +
+        "where a.id = 1 and a.type in (select id from typeTable where id = 2)";
+    
     @Test
-    public void parseTest() throws SqlTranslateException {
+    public void selectTest() throws SqlTranslateException {
 //        String sql = this.sql;
 //        System.out.println(sql);
         MySQLParser parser = new MySQLParser();
-        SQL parse = parser.parse(sql);
+        SQL parse = parser.parse(selectSql);
         MySQLTranslator translator = new MySQLTranslator();
         String translate = translator.translate(parse);
         System.out.println(translate);
+    }
+    
+    @Test
+    public void updateTest() throws SqlTranslateException {
+        MySQLParser parser = new MySQLParser();
+        SQL parse = parser.parse(updateSql);
+//        MySQLTranslator translator = new MySQLTranslator();
+//        String translate = translator.translate(parse);
+//        System.out.println(translate);
     }
 
 }

@@ -36,10 +36,18 @@ public class CombinationColumn implements Column {
         LESS_EQUAL,
         LIKE,
         /**
-         * NULL值判断
+         * 值判断
          */
         IS_NULL,
         IS_NOT_NULL,
+        IN,
+        NOT_IN,
+        /**
+         * 值计算
+         */
+        Addition,
+        Division,
+        
         /**
          * 逻辑连接词
          */

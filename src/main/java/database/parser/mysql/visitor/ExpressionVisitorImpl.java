@@ -208,7 +208,13 @@ public class ExpressionVisitorImpl implements ExpressionVisitor {
     
     @Override
     public void visit(InExpression inExpression) {
-        throw new UnsupportedOperationException();
+        CombinationColumn combinationColumn = new CombinationColumn();
+        combinationColumn.setOperate(inExpression.isNot() ? CombinationColumn.Operate.NOT_IN : CombinationColumn.Operate.IN);
+        inExpression.getLeftExpression().accept(this);
+        combinationColumn.setLeft(getColumn());
+        inExpression.getRightExpression().accept(this);
+        combinationColumn.setRight(getColumn());
+        column = combinationColumn;
     }
     
     @Override

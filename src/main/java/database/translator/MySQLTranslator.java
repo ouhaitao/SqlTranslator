@@ -2,6 +2,7 @@ package database.translator;
 
 import database.sql.Column;
 import database.sql.Database;
+import database.sql.SQL;
 import database.sql.column.*;
 import database.sql.select.*;
 import database.sql.table.FromObject;
@@ -36,7 +37,7 @@ public class MySQLTranslator extends AbstractTranslator {
     private String select(Select sql, final StringBuilder sb) {
         sb.append("select");
         // behavior
-        List<Select.Behavior> behaviorList = CollectionUtils.nonNullAndDefaultEmpty(sql.getBehaviorList());
+        List<SQL.Behavior> behaviorList = CollectionUtils.nonNullAndDefaultEmpty(sql.getBehaviorList());
         behaviorList.forEach(behavior -> sb.append(" ").append(behavior));
         sb.append(" ");
         // selectObject

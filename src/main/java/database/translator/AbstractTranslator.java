@@ -64,6 +64,10 @@ public abstract class AbstractTranslator implements Translator, FunctionTranslat
                 return "IS NULL";
             case IS_NOT_NULL:
                 return "IS NOT NULL";
+            case IN:
+                return "IN";
+            case NOT_IN:
+                return "NOT IN";
             default:
                 throw new UnsupportedOperationException();
         }

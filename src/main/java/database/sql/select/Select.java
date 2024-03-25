@@ -17,12 +17,6 @@ import java.util.Optional;
 public class Select extends SQL {
     
     /**
-     * 查询的行为
-     * e.g. DISTINCT, SQL_NO_CACHE
-     */
-    private List<Behavior> behaviorList;
-    
-    /**
      * 查询的列
      */
     private List<SelectObject> selectObjectList;
@@ -43,11 +37,6 @@ public class Select extends SQL {
         super(type);
     }
     
-    public void addBehaviorObject(Behavior behavior) {
-        behaviorList = CollectionUtils.nonNull(behaviorList);
-        behaviorList.add(behavior);
-    }
-    
     public void addSelectObject(SelectObject selectObject) {
         selectObjectList = CollectionUtils.nonNull(selectObjectList);
         selectObjectList.add(selectObject);
@@ -63,8 +52,4 @@ public class Select extends SQL {
         orderByObjectList.add(orderByObject);
     }
     
-    public enum Behavior {
-        DISTINCT,
-        SQL_NO_CACHE
-    }
 }

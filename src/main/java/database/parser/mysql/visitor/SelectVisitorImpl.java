@@ -1,5 +1,6 @@
 package database.parser.mysql.visitor;
 
+import database.sql.SQL;
 import database.sql.column.CombinationColumn;
 import database.sql.column.NumberColumn;
 import database.sql.select.Select;
@@ -23,7 +24,7 @@ public class SelectVisitorImpl implements SelectVisitor {
     @Override
     public void visit(PlainSelect plainSelect) {
         if (plainSelect.getDistinct() != null) {
-            select.addBehaviorObject(Select.Behavior.DISTINCT);
+            select.addBehaviorObject(SQL.Behavior.DISTINCT);
         }
         // select的列
         SelectItemVisitorImpl selectItemVisitor = new SelectItemVisitorImpl();

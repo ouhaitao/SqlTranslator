@@ -24,6 +24,8 @@ public class MySQLParser implements Parser {
         }
         if (statement instanceof net.sf.jsqlparser.statement.select.Select) {
             return parseSelect((net.sf.jsqlparser.statement.select.Select) statement);
+        } else if (statement instanceof net.sf.jsqlparser.statement.update.Update) {
+            return parseUpdate((net.sf.jsqlparser.statement.update.Update) statement);
         }
         throw new UnsupportedOperationException();
     }
@@ -33,6 +35,10 @@ public class MySQLParser implements Parser {
         SelectVisitorImpl selectVisitor = new SelectVisitorImpl(select);
         selectStatement.getSelectBody().accept(selectVisitor);
         return select;
+    }
+    
+    private SQL parseUpdate(net.sf.jsqlparser.statement.update.Update updateStatement) {
+        return null;
     }
     
 }
