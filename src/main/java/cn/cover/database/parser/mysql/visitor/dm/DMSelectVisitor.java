@@ -16,6 +16,7 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.FromItemVisitorAdapter;
 import net.sf.jsqlparser.statement.select.Join;
@@ -77,7 +78,8 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         final FromItem rightItem = join.getRightItem();
         if (rightItem instanceof Table) {
           Table table = (Table) rightItem;
-          sqlBuilder.append(table.getName()).append(" ");
+          String tableName = table.getName().replaceAll("`", "");
+          sqlBuilder.append(tableName.toUpperCase()).append(" ");
           if (table.getAlias() != null) {
             sqlBuilder.append(table.getAlias().getName()).append(" ");
           }
@@ -221,6 +223,11 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     }
 
     @Override
+    public void visit(final AllColumns allColumns) {
+      sqlBuilder.append("*");
+    }
+
+    @Override
     public void visit(final StringValue value) {
       sqlBuilder.append("'").append(value.getValue()).append("'");
       if (!lastOne) {
@@ -328,7 +335,8 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final Table table) {
       sqlBuilder.append(" FROM ");
-      sqlBuilder.append(table.getName()).append(" ");
+      String tableName = table.getName().replaceAll("`", "");
+      sqlBuilder.append(tableName.toUpperCase()).append(" ");
       if (table.getAlias() != null) {
         sqlBuilder.append(table.getAlias().getName());
       }
