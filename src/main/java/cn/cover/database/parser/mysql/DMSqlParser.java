@@ -114,6 +114,17 @@ public class DMSqlParser implements Parser {
         } else if (join.isRight()) {
           sqlBuilder.append(" RIGHT JOIN ");
         }
+
+        final FromItem rightItem = join.getRightItem();
+        if (rightItem instanceof Table) {
+          Table table = (Table) rightItem;
+          sqlBuilder.append(table.getName()).append(" ");
+          if (table.getAlias() != null) {
+            sqlBuilder.append(table.getAlias().getName()).append(" ");
+          }
+          sqlBuilder.append("ON ");
+        }
+
         final Collection<Expression> onExpressions = join.getOnExpressions();
         int i = 0;
         int size = onExpressions.size() - 1;
