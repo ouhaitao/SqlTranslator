@@ -7,10 +7,13 @@ import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.MySQLGroupConcat;
+import net.sf.jsqlparser.expression.NullValue;
+import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
@@ -214,25 +217,30 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     }
 
     @Override
-    public void visit(final Function function) {
-      sqlBuilder.append(function.getName().toUpperCase()).append("(");
-      final ExpressionList parameters = function.getParameters();
-      final List<Expression> expressions = parameters.getExpressions();
-      expressionListVisitor(expressions);
-      sqlBuilder.append(")");
+    public void visit(final StringValue value) {
+      sqlBuilder.append("'").append(value.getValue()).append("'");
       if (!lastOne) {
         sqlBuilder.append(", ");
       }
     }
 
-    private void expressionListVisitor(final List<Expression> expressions) {
-      for (int i = 0, size = expressions.size(); i < size; i++) {
-        final Expression expression = expressions.get(i);
-        if (i != (size - 1)) {
-          expression.accept(DMExpressionVisitor.getNotEnd(sqlBuilder));
-        } else {
-          expression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
-        }
+    @Override
+    public void visit(final NullValue expr) {
+      sqlBuilder.append("NULL");
+      if (!lastOne) {
+        sqlBuilder.append(", ");
+      }
+    }
+
+    @Override
+    public void visit(final Function function) {
+      sqlBuilder.append(function.getName().toUpperCase()).append("(");
+      final ExpressionList parameters = function.getParameters();
+      final List<Expression> expressions = parameters.getExpressions();
+      expressionListVisitor(expressions, sqlBuilder);
+      sqlBuilder.append(")");
+      if (!lastOne) {
+        sqlBuilder.append(", ");
       }
     }
 
@@ -276,10 +284,23 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       sqlBuilder.append("WM_CONCAT(");
       final ExpressionList expressionList = groupConcat.getExpressionList();
       final List<Expression> expressions = expressionList.getExpressions();
-      expressionListVisitor(expressions);
+      expressionListVisitor(expressions, sqlBuilder);
       sqlBuilder.append(")");
       if (!lastOne) {
         sqlBuilder.append(", ");
+      }
+    }
+
+    //
+    public static void expressionListVisitor(final List<? extends Expression> expressions,
+        StringBuilder sqlBuilder) {
+      for (int i = 0, size = expressions.size(); i < size; i++) {
+        final Expression expression = expressions.get(i);
+        if (i != (size - 1)) {
+          expression.accept(DMExpressionVisitor.getNotEnd(sqlBuilder));
+        } else {
+          expression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+        }
       }
     }
   }
