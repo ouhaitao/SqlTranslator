@@ -20,7 +20,8 @@ public class DMSqlParserTest {
     //        + ""
     //        + " limit 1,1";
 
-    String sql = "INSERT INTO `fm_auth_menu`(a,b,c,d,e,f,g) VALUES (92, 'AUTH', '权限管理', 0, 1, 3, NULL);";
+    //String sql = "INSERT INTO `fm_auth_menu`(a,b,c,d,e,f,g) VALUES (92, 'AUTH', '权限管理', 0, 1, 3, NULL);";
+    String sql = "select  *  from `user` where user_name = ?";
     System.out.println(parser.parse(sql));
   }
 }

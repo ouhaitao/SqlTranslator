@@ -24,13 +24,9 @@ public class DMSqlParser implements Parser {
     LOGGER.info("原始的sql: {}", originSQL);
     try {
       Statement stmt = CCJSqlParserUtil.parse(originSQL);
-      //if (stmt instanceof Select) {
-      //  Select select = (Select) stmt;
-      //  select.accept(new DMStatementVisitor(translateSql));
-      //}
       stmt.accept(new DMStatementVisitor(translateSql));
     } catch (JSQLParserException e) {
-      LOGGER.info("J");
+      LOGGER.info("jsqlparser解析异常。", e);
     }
     LOGGER.info("转换之后的sql: {}", translateSql);
     return new RawSQL(translateSql.toString());

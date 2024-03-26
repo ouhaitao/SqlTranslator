@@ -5,6 +5,7 @@ import java.util.List;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.JdbcParameter;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.MySQLGroupConcat;
 import net.sf.jsqlparser.expression.NullValue;
@@ -13,7 +14,6 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
-import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
@@ -66,38 +66,42 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     fromItem.accept(new DMFromItemVisitor(sqlBuilder));
 
     final List<Join> joins = plainSelect.getJoins();
-    for (final Join join : joins) {
-      if (join.isLeft()) {
-        sqlBuilder.append(" LEFT JOIN ");
-      } else if (join.isRight()) {
-        sqlBuilder.append(" RIGHT JOIN ");
-      }
-
-      final FromItem rightItem = join.getRightItem();
-      if (rightItem instanceof Table) {
-        Table table = (Table) rightItem;
-        sqlBuilder.append(table.getName()).append(" ");
-        if (table.getAlias() != null) {
-          sqlBuilder.append(table.getAlias().getName()).append(" ");
+    if (joins != null && !joins.isEmpty()) {
+      for (final Join join : joins) {
+        if (join.isLeft()) {
+          sqlBuilder.append(" LEFT JOIN ");
+        } else if (join.isRight()) {
+          sqlBuilder.append(" RIGHT JOIN ");
         }
-        sqlBuilder.append("ON ");
-      }
 
-      final Collection<Expression> onExpressions = join.getOnExpressions();
-      int i = 0;
-      int size = onExpressions.size() - 1;
-      for (final Expression onExpression : onExpressions) {
-        if (i == size) {
-          onExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
-        } else {
-          onExpression.accept(DMExpressionVisitor.getNotEnd(sqlBuilder));
+        final FromItem rightItem = join.getRightItem();
+        if (rightItem instanceof Table) {
+          Table table = (Table) rightItem;
+          sqlBuilder.append(table.getName()).append(" ");
+          if (table.getAlias() != null) {
+            sqlBuilder.append(table.getAlias().getName()).append(" ");
+          }
+          sqlBuilder.append("ON ");
+        }
+
+        final Collection<Expression> onExpressions = join.getOnExpressions();
+        int i = 0;
+        int size = onExpressions.size() - 1;
+        for (final Expression onExpression : onExpressions) {
+          if (i == size) {
+            onExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+          } else {
+            onExpression.accept(DMExpressionVisitor.getNotEnd(sqlBuilder));
+          }
         }
       }
     }
 
     final Expression where = plainSelect.getWhere();
-    sqlBuilder.append(" WHERE ");
-    where.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+    if (where != null) {
+      sqlBuilder.append(" WHERE ");
+      where.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+    }
 
     final Limit limit = plainSelect.getLimit();
     if (limit != null) {
@@ -239,6 +243,14 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       final List<Expression> expressions = parameters.getExpressions();
       expressionListVisitor(expressions, sqlBuilder);
       sqlBuilder.append(")");
+      if (!lastOne) {
+        sqlBuilder.append(", ");
+      }
+    }
+
+    @Override
+    public void visit(JdbcParameter jdbcParameter) {
+      sqlBuilder.append("?");
       if (!lastOne) {
         sqlBuilder.append(", ");
       }
