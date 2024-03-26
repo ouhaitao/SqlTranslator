@@ -8,7 +8,6 @@ import cn.cover.exception.SqlTranslateException;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +21,14 @@ public class DMSqlParser implements Parser {
   @Override
   public SQL parse(String originSQL) throws SqlTranslateException {
     StringBuilder translateSql = new StringBuilder();
+    LOGGER.info("原始的sql: {}", originSQL);
     try {
       Statement stmt = CCJSqlParserUtil.parse(originSQL);
-      if (stmt instanceof Select) {
-        Select select = (Select) stmt;
-        select.accept(new DMStatementVisitor(translateSql));
-      }
+      //if (stmt instanceof Select) {
+      //  Select select = (Select) stmt;
+      //  select.accept(new DMStatementVisitor(translateSql));
+      //}
+      stmt.accept(new DMStatementVisitor(translateSql));
     } catch (JSQLParserException e) {
       LOGGER.info("J");
     }
