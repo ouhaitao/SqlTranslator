@@ -1,8 +1,8 @@
 package util;
 
-import database.sql.Database;
-import support.MybatisInterceptor;
-import support.SqlTranslator;
+import cn.cover.database.sql.Database;
+import cn.cover.support.MybatisInterceptor;
+import cn.cover.support.SqlTranslator;
 
 /**
  * @author parry 2024/03/13

@@ -1,7 +1,7 @@
-import database.parser.mysql.MySQLParser;
-import database.sql.SQL;
-import database.translator.MySQLTranslator;
-import exception.SqlTranslateException;
+import cn.cover.database.parser.mysql.MySQLParser;
+import cn.cover.database.sql.SQL;
+import cn.cover.database.translator.MySQLTranslator;
+import cn.cover.exception.SqlTranslateException;
 import org.junit.Test;
 
 /**
