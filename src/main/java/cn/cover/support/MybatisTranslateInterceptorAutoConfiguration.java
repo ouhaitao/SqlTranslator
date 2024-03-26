@@ -13,12 +13,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(SqlTranslatorProperties.class)
 @ConditionalOnProperty(prefix = "sql.translator", value = {"originDatabase", "targetDatabase"}, matchIfMissing = true)
-public class MybatisInterceptorAutoConfiguration {
+public class MybatisTranslateInterceptorAutoConfiguration {
 
     public static final String MYBATIS_INTERCEPTOR_BEAN_NAME = "sqlTranslatorMybatisInterceptor";
 
     @Bean(MYBATIS_INTERCEPTOR_BEAN_NAME)
-    public MybatisInterceptor mybatisInterceptor(SqlTranslatorProperties properties) {
+    public MybatisTranslateInterceptor mybatisInterceptor(SqlTranslatorProperties properties) {
         SqlTranslator.Builder builder = SqlTranslator.builder()
             .originDatabase(properties.getOriginDatabase())
             .targetDatabase(properties.getTargetDatabase());
@@ -26,6 +26,6 @@ public class MybatisInterceptorAutoConfiguration {
             properties.getIgnoreMapperIdSet().forEach(builder::addIgnoreMapperId);
         }
         SqlTranslator sqlTranslator = builder.build();
-        return new MybatisInterceptor(sqlTranslator);
+        return new MybatisTranslateInterceptor(sqlTranslator);
     }
 }

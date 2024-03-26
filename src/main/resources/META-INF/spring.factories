@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-cn.cover.support.MybatisInterceptorAutoConfiguration
+cn.cover.support.MybatisTranslateInterceptorAutoConfiguration

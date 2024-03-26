@@ -1,8 +1,8 @@
 package mybatis;
 
 import cn.cover.database.sql.Database;
-import cn.cover.support.MybatisInterceptor;
-import cn.cover.support.MybatisInterceptorAutoConfiguration;
+import cn.cover.support.MybatisTranslateInterceptor;
+import cn.cover.support.MybatisTranslateInterceptorAutoConfiguration;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +17,7 @@ import java.util.Set;
 public class SpringTest {
     
     private ApplicationContextRunner runner = new ApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(MybatisInterceptorAutoConfiguration.class));
+        .withConfiguration(AutoConfigurations.of(MybatisTranslateInterceptorAutoConfiguration.class));
     
     /**
      * 源数据库类型
@@ -34,7 +34,7 @@ public class SpringTest {
     public void testAutoConfiguration() {
         runner.withPropertyValues(originDatabase, targetDatabase)
             .run(context -> {
-                MybatisInterceptor interceptor = context.getBean(MybatisInterceptor.class);
+                MybatisTranslateInterceptor interceptor = context.getBean(MybatisTranslateInterceptor.class);
                 System.out.println(interceptor);
             });
     }

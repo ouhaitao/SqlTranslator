@@ -24,7 +24,7 @@ import java.util.Properties;
     @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
         RowBounds.class, ResultHandler.class})
 })
-public class MybatisInterceptor implements Interceptor {
+public class MybatisTranslateInterceptor implements Interceptor {
     
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
@@ -32,7 +32,7 @@ public class MybatisInterceptor implements Interceptor {
     
     private SqlTranslator sqlTranslator;
     
-    public MybatisInterceptor(SqlTranslator sqlTranslator) {
+    public MybatisTranslateInterceptor(SqlTranslator sqlTranslator) {
         try {
             this.sqlTranslator = sqlTranslator;
             sqlSourceField = MappedStatement.class.getDeclaredField("sqlSource");

@@ -1,7 +1,7 @@
 package util;
 
 import cn.cover.database.sql.Database;
-import cn.cover.support.MybatisInterceptor;
+import cn.cover.support.MybatisTranslateInterceptor;
 import cn.cover.support.SqlTranslator;
 
 /**
@@ -13,7 +13,7 @@ public class SqlTranslatorUtil {
         return SqlTranslator.builder().originDatabase(Database.MYSQL).targetDatabase(Database.MYSQL).build();
     }
     
-    public static MybatisInterceptor getMybatisInterceptor() {
-        return new MybatisInterceptor(getSqlTranslator());
+    public static MybatisTranslateInterceptor getMybatisInterceptor() {
+        return new MybatisTranslateInterceptor(getSqlTranslator());
     }
 }
