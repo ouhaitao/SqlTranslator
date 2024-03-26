@@ -1,6 +1,7 @@
 package cn.cover.support;
 
 import cn.cover.database.Parser;
+import cn.cover.database.parser.mysql.DMSqlParser;
 import cn.cover.database.parser.mysql.MySQLParser;
 import cn.cover.database.parser.mysql.RawParser;
 import cn.cover.database.sql.Database;
@@ -63,6 +64,8 @@ public class SqlTranslator {
                 return new RawParser();
             case MYSQL:
                 return new MySQLParser();
+            case DM:
+                return new DMSqlParser();
             default:
                 throw new UnsupportedOperationException();
         }
