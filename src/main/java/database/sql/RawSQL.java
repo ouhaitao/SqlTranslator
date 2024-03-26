@@ -7,12 +7,12 @@ import lombok.Getter;
  * 不进行转译的SQL
  */
 @Getter
-public class StringSQL extends SQL {
+public class RawSQL extends SQL {
     
     private final String sql;
     
-    public StringSQL(String sql) {
-        super(Type.STRING);
+    public RawSQL(String sql) {
+        super(Type.RAW);
         this.sql = sql;
     }
 }

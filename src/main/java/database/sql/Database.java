@@ -5,5 +5,6 @@ package database.sql;
  */
 public enum Database {
     
+    RAW,
     MYSQL;
 }

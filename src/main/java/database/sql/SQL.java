@@ -1,7 +1,6 @@
 package database.sql;
 
 import database.sql.column.CombinationColumn;
-import database.sql.select.Select;
 import database.sql.table.FromObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -50,7 +49,7 @@ public abstract class SQL {
         DELETE,
         SELECT,
         SUB_SELECT,
-        STRING
+        RAW
     }
     
     public enum Behavior {

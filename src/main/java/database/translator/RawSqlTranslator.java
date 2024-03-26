@@ -1,7 +1,7 @@
 package database.translator;
 
 import database.sql.SQL;
-import database.sql.StringSQL;
+import database.sql.RawSQL;
 import database.sql.column.*;
 import database.sql.select.Select;
 import database.sql.select.SubSelect;
@@ -11,12 +11,12 @@ import database.sql.table.StringTable;
  * @author parry 2024/03/25
  * StringSql的转译器
  */
-public class StringSqlTranslator extends AbstractTranslator {
+public class RawSqlTranslator extends AbstractTranslator {
     
     @Override
     public String translate(SQL originSQL) {
-        if (originSQL.getType() == SQL.Type.STRING) {
-            return ((StringSQL) originSQL).getSql();
+        if (originSQL.getType() == SQL.Type.RAW) {
+            return ((RawSQL) originSQL).getSql();
         }
         throw new UnsupportedOperationException("不支持的sql类型:" + originSQL.getType());
     }

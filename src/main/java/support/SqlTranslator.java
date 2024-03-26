@@ -2,10 +2,12 @@ package support;
 
 import database.Parser;
 import database.parser.mysql.MySQLParser;
+import database.parser.mysql.RawParser;
 import database.sql.Database;
 import database.sql.SQL;
 import database.translator.AbstractTranslator;
 import database.translator.MySQLTranslator;
+import database.translator.RawSqlTranslator;
 import exception.SqlTranslateException;
 import lombok.Getter;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -57,6 +59,8 @@ public class SqlTranslator {
     
     private Parser newParser() {
         switch (originDatabase) {
+            case RAW:
+                return new RawParser();
             case MYSQL:
                 return new MySQLParser();
             default:
@@ -66,6 +70,8 @@ public class SqlTranslator {
     
     private AbstractTranslator newTranslator() {
         switch (targetDatabase) {
+            case RAW:
+                return new RawSqlTranslator();
             case MYSQL:
                 return new MySQLTranslator();
             default:
