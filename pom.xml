@@ -109,6 +109,8 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <maven-release-url>https://maven.thecover.cn/repository/maven-releases/</maven-release-url>
+        <maven-snapshots-url>https://maven.thecover.cn/repository/maven-snapshots/</maven-snapshots-url>
     </properties>
 
     <build>
@@ -122,5 +124,16 @@
             </testResource>
         </testResources>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>mzone-release</id>
+            <url>${maven-release-url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>mzone-snapshot</id>
+            <url>${maven-snapshots-url}</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
