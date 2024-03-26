@@ -4,7 +4,6 @@ import cn.cover.database.sql.RawSQL;
 import cn.cover.database.sql.SQL;
 import cn.cover.database.sql.column.*;
 import cn.cover.database.sql.select.Select;
-import database.sql.column.*;
 import cn.cover.database.sql.select.SubSelect;
 import cn.cover.database.sql.table.StringTable;
 

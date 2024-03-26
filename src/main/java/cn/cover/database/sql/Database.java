@@ -6,5 +6,6 @@ package cn.cover.database.sql;
 public enum Database {
     
     RAW,
-    MYSQL;
+    MYSQL,
+    DM
 }

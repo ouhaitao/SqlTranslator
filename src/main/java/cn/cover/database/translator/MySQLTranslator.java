@@ -1,14 +1,12 @@
 package cn.cover.database.translator;
 
+import cn.cover.database.sql.Column;
+import cn.cover.database.sql.Database;
 import cn.cover.database.sql.SQL;
 import cn.cover.database.sql.column.*;
 import cn.cover.database.sql.select.*;
 import cn.cover.database.sql.table.FromObject;
 import cn.cover.database.sql.table.JoinObject;
-import cn.cover.database.sql.Column;
-import cn.cover.database.sql.Database;
-import database.sql.column.*;
-import database.sql.select.*;
 import cn.cover.database.sql.table.StringTable;
 import cn.cover.util.CollectionUtils;
 

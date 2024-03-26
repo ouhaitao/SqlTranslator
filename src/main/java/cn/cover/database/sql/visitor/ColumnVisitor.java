@@ -1,7 +1,6 @@
 package cn.cover.database.sql.visitor;
 
 import cn.cover.database.sql.column.*;
-import database.sql.column.*;
 import cn.cover.database.sql.select.SubSelect;
 
 

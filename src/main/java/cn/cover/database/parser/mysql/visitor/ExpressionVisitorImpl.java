@@ -4,7 +4,6 @@ import cn.cover.database.sql.Column;
 import cn.cover.database.sql.Database;
 import cn.cover.database.sql.column.*;
 import cn.cover.database.sql.select.SubSelect;
-import database.sql.column.*;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
