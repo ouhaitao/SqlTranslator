@@ -10,10 +10,18 @@ import cn.cover.support.SqlTranslator;
 public class SqlTranslatorUtil {
     
     public static SqlTranslator getSqlTranslator() {
-        return SqlTranslator.builder().originDatabase(Database.MYSQL).targetDatabase(Database.MYSQL).build();
+        return getSqlTranslator(Database.MYSQL, Database.MYSQL);
+    }
+    
+    public static SqlTranslator getSqlTranslator(Database originDatabase, Database targetDatabase) {
+        return SqlTranslator.builder().originDatabase(originDatabase).targetDatabase(targetDatabase).build();
     }
     
     public static MybatisTranslateInterceptor getMybatisInterceptor() {
         return new MybatisTranslateInterceptor(getSqlTranslator());
+    }
+    
+    public static MybatisTranslateInterceptor getMybatisInterceptor(Database originDatabase, Database targetDatabase) {
+        return new MybatisTranslateInterceptor(getSqlTranslator(originDatabase, targetDatabase));
     }
 }

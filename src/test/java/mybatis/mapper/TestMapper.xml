@@ -7,6 +7,6 @@
     </select>
 
     <select id="dmSelect" resultType="java.util.Map">
-        select * from test_table where "id" = #{id}
+        select * from test_table where id = #{id}
     </select>
 </mapper>

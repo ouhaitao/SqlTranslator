@@ -2,6 +2,7 @@ package cn.cover.support;
 
 
 import cn.cover.database.sql.Database;
+import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
  * @author parry 2024/03/26
  */
 @ConfigurationProperties(prefix = "sql.translator")
+@ToString
 public class SqlTranslatorProperties {
     
     /**

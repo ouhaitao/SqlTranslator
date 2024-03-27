@@ -1,6 +1,8 @@
 package cn.cover.support;
 
 import cn.cover.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -15,10 +17,13 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "sql.translator", value = {"origin-database", "target-database"})
 public class MybatisTranslateInterceptorAutoConfiguration {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+    
     public static final String MYBATIS_INTERCEPTOR_BEAN_NAME = "sqlTranslatorMybatisInterceptor";
 
     @Bean(MYBATIS_INTERCEPTOR_BEAN_NAME)
     public MybatisTranslateInterceptor mybatisInterceptor(SqlTranslatorProperties properties) {
+        logger.info("创建MybatisTranslateInterceptor, properties={}", properties.toString());
         SqlTranslator.Builder builder = SqlTranslator.builder()
             .originDatabase(properties.getOriginDatabase())
             .targetDatabase(properties.getTargetDatabase());

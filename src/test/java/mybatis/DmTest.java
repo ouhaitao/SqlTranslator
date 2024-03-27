@@ -1,5 +1,6 @@
 package mybatis;
 
+import cn.cover.database.sql.Database;
 import com.alibaba.druid.pool.DruidDataSource;
 import mybatis.mapper.TestMapper;
 import org.apache.ibatis.mapping.Environment;
@@ -11,6 +12,7 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import util.SqlTranslatorUtil;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -42,6 +44,7 @@ public class DmTest {
         Environment environment = new Environment("development", transactionFactory, dataSource);
         Configuration configuration = new Configuration(environment);
         configuration.addMapper(TestMapper.class);
+        configuration.addInterceptor(SqlTranslatorUtil.getMybatisInterceptor(Database.DM, Database.RAW));
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
         testMapper = sqlSessionFactory.openSession(true).getMapper(TestMapper.class);
     }
