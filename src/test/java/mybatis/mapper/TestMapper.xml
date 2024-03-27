@@ -8,5 +8,8 @@
 
     <select id="dmSelect" resultType="java.util.Map">
         select * from test_table where id = #{id}
+        <if test="id == 2">
+            and id = ${id}1
+        </if>
     </select>
 </mapper>

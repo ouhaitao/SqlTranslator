@@ -53,5 +53,6 @@ public class DmTest {
     public void test() {
         Map<Object, Object> select = testMapper.dmSelect(1);
         select.forEach((key, value) -> System.out.println(key + ":" + value));
+        select = testMapper.dmSelect(2);
     }
 }
