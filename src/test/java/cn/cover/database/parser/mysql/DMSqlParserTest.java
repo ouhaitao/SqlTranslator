@@ -1,7 +1,6 @@
 package cn.cover.database.parser.mysql;
 
 import cn.cover.exception.SqlTranslateException;
-import net.sf.jsqlparser.expression.NullValue;
 
 /**
  * @Use
@@ -22,8 +21,8 @@ public class DMSqlParserTest {
 
     //String sql = "INSERT INTO `fm_auth_menu`(a,b,c,d,e,f,g) VALUES (92, 'AUTH', '权限管理', 0, 1, 3, NULL);";
     //String sql = "select  *  from `user` where user_name = ?";
-    //String sql = "update tab1 set a=12,b=12,c='haha' where id = 13 and b = ?";
-    String sql = "delete from tab where id = 13 and b = ?";
+    //String sql = "update USER set a=12,b=12,c='haha' where id = 13 and b = ?";
+    String sql = "delete from USER where id = 13 and b = ?";
     System.out.println(parser.parse(sql));
   }
 }

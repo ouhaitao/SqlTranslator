@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.statement.update.UpdateSet;
 
@@ -30,7 +29,7 @@ public class DMUpdateVisitor {
     sqlBuilder.append("UPDATE ");
     final Table table = update.getTable();
     if (table != null) {
-      sqlBuilder.append(table.getName().toUpperCase()).append(" ");
+      sqlBuilder.append(CommonVisitor.dealKeyword(table.getName().toUpperCase())).append(" ");
       if (table.getAlias() != null) {
         sqlBuilder.append(table.getAlias());
       }

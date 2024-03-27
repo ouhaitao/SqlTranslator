@@ -79,7 +79,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         if (rightItem instanceof Table) {
           Table table = (Table) rightItem;
           String tableName = table.getName().replaceAll("`", "");
-          sqlBuilder.append(tableName.toUpperCase()).append(" ");
+          sqlBuilder.append(CommonVisitor.dealKeyword(tableName.toUpperCase())).append(" ");
           if (table.getAlias() != null) {
             sqlBuilder.append(table.getAlias().getName()).append(" ");
           }
@@ -336,7 +336,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     public void visit(final Table table) {
       sqlBuilder.append(" FROM ");
       String tableName = table.getName().replaceAll("`", "");
-      sqlBuilder.append(tableName.toUpperCase()).append(" ");
+      sqlBuilder.append(CommonVisitor.dealKeyword(tableName.toUpperCase())).append(" ");
       if (table.getAlias() != null) {
         sqlBuilder.append(table.getAlias().getName());
       }
