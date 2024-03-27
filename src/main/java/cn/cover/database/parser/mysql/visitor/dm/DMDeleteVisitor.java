@@ -25,7 +25,7 @@ public class DMDeleteVisitor {
     final Table table = delete.getTable();
     sqlBuilder.append("DELETE FROM ");
     if (table != null) {
-      sqlBuilder.append(table.getName().toUpperCase()).append(" ");
+      sqlBuilder.append(CommonVisitor.dealKeyword(table.getName().toUpperCase())).append(" ");
       if (table.getAlias() != null) {
         sqlBuilder.append(table.getAlias()).append(" ");
       }

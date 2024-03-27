@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitorAdapter;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.insert.Insert;
 
 /**
@@ -26,7 +27,12 @@ public class DMInsertVisitor {
   public void visitor() {
     final List<Column> columns = insert.getColumns();
 
-    sqlBuilder.append("INSERT INTO").append(" ").append(insert.getTable().getName());
+    final Table table = insert.getTable();
+    sqlBuilder.append("INSERT INTO").append(" ")
+        .append(CommonVisitor.dealKeyword(table.getName().toUpperCase())).append(" ");
+    if (table.getAlias() != null) {
+      sqlBuilder.append(table.getAlias()).append(" ");
+    }
     if (columns != null && !columns.isEmpty()) {
       sqlBuilder.append(" (");
       DMExpressionVisitor.expressionListVisitor(columns, sqlBuilder);
