@@ -35,11 +35,10 @@ public class MybatisTranslateInterceptor implements Interceptor {
     
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
-        MappedStatement statement = (MappedStatement) invocation.getArgs()[0];
-        Object parameter = null;
-        if (invocation.getArgs().length > 1) {
-            parameter = invocation.getArgs()[1];
-        }
+        Object[] invocationArgs = invocation.getArgs();
+        MappedStatement statement = (MappedStatement) invocationArgs[0];
+        Object parameter = invocationArgs[1];
+        
         BoundSql boundSql = statement.getBoundSql(parameter);
         String translateSql = sqlTranslator.translate(boundSql.getSql(), statement.getId());
         if (logger.isDebugEnabled()) {
@@ -47,8 +46,11 @@ public class MybatisTranslateInterceptor implements Interceptor {
         }
         
         MappedStatement newMappedStatement = newMappedStatement(statement, boundSql, translateSql);
-        invocation.getArgs()[0] = newMappedStatement;
-        
+        invocationArgs[0] = newMappedStatement;
+        // 对应6个参数的query方法
+        if (invocationArgs.length > 4) {
+            invocationArgs[5] = newMappedStatement.getBoundSql(parameter);
+        }
         return invocation.proceed();
     }
     

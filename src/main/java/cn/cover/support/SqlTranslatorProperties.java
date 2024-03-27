@@ -22,7 +22,9 @@ public class SqlTranslatorProperties {
      * 目标数据库类型
      */
     private Database targetDatabase;
-    
+    /**
+     * 不进行转译的MapperId
+     */
     private Set<String> ignoreMapperIdSet;
     
     public Database getOriginDatabase() {
