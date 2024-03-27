@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableConfigurationProperties(SqlTranslatorProperties.class)
-@ConditionalOnProperty(prefix = "sql.translator", value = {"originDatabase", "targetDatabase"})
+@ConditionalOnProperty(prefix = "sql.translator", value = {"origin-database", "target-database"})
 public class MybatisTranslateInterceptorAutoConfiguration {
 
     public static final String MYBATIS_INTERCEPTOR_BEAN_NAME = "sqlTranslatorMybatisInterceptor";

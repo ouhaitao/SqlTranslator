@@ -79,30 +79,31 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Spring支持 -->
+        <!-- Spring自动装配支持 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
             <version>2.0.5.RELEASE</version>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure-processor</artifactId>
             <version>2.0.5.RELEASE</version>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <version>2.0.5.RELEASE</version>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <version>2.0.5.RELEASE</version>
             <scope>test</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
