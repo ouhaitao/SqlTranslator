@@ -70,7 +70,8 @@ public class MybatisTranslateInterceptorAutoConfiguration {
     
     /**
      * PageHelper的自动方言对象
-     * pageHelper如果没有配置方言，则会根据jdbc的url获取到对应的方言对象，这里达梦使用Mysql的方言
+     * pageHelper如果没有配置方言，则会根据jdbc的url获取到对应的方言对象
+     * 由于项目中使用的mysql的语法，所以统一使用Mysql的方言
      */
     private void initPageHelperDialect() {
         try {
