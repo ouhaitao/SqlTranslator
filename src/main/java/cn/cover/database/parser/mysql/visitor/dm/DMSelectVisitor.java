@@ -2,6 +2,7 @@ package cn.cover.database.parser.mysql.visitor.dm;
 
 import java.util.Collection;
 import java.util.List;
+import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.Function;
@@ -293,8 +294,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(final SubSelect subSelect) {
-      final SelectBody selectBody = subSelect.getSelectBody();
-      // TODO
+      SubSelectVisitor.visit(subSelect, sqlBuilder);
     }
 
     @Override
@@ -344,7 +344,8 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(final SubSelect subSelect) {
-      super.visit(subSelect);
+      sqlBuilder.append(" FROM ");
+      SubSelectVisitor.visit(subSelect, sqlBuilder);
     }
 
     @Override
@@ -370,6 +371,20 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final ParenthesisFromItem aThis) {
       super.visit(aThis);
+    }
+  }
+
+  static class SubSelectVisitor {
+
+    static void visit(SubSelect subSelect, StringBuilder sqlBuilder) {
+      final SelectBody selectBody = subSelect.getSelectBody();
+      sqlBuilder.append(" (");
+      selectBody.accept(new DMSelectVisitor(sqlBuilder));
+      sqlBuilder.append(" ) ");
+      final Alias alias = subSelect.getAlias();
+      if (alias != null) {
+        sqlBuilder.append(alias.getName());
+      }
     }
   }
 }

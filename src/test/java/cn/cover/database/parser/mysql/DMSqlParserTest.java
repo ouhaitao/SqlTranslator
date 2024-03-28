@@ -1,6 +1,7 @@
 package cn.cover.database.parser.mysql;
 
 import cn.cover.exception.SqlTranslateException;
+import org.junit.Test;
 
 /**
  * @Use
@@ -9,8 +10,9 @@ import cn.cover.exception.SqlTranslateException;
  */
 public class DMSqlParserTest {
 
+  private static final DMSqlParser DM_SQL_PARSER = new DMSqlParser();
+
   public static void main(String[] args) throws SqlTranslateException {
-    DMSqlParser parser = new DMSqlParser();
     //String sql =
     //    "SELECT ifnull(tab1.id, 0),group_concat(tab1.name) name,`tab3.org` FROM tab1 left join tab3 on tab1.id = tab3.tt_id where "
     //        //+ "tab1.id in (select t_id from tab2)"
@@ -23,6 +25,17 @@ public class DMSqlParserTest {
     //String sql = "select  *  from `user` where user_name = ?";
     //String sql = "update USER set a=12,b=12,c='haha' where id = 13 and b = ?";
     String sql = "delete from USER where id = 13 and b = ?";
-    System.out.println(parser.parse(sql));
+    System.out.println(DM_SQL_PARSER.parse(sql));
+  }
+
+  @Test
+  public void testSubSelect() throws SqlTranslateException {
+    String sql = "SELECT\n"
+        + "\t* \n"
+        + "FROM\n"
+        + "\t( SELECT * FROM config WHERE project_id = ? ) a \n"
+        + "WHERE\n"
+        + "\ta.NAME = 'haha'";
+    System.out.println(DM_SQL_PARSER.parse(sql));
   }
 }
