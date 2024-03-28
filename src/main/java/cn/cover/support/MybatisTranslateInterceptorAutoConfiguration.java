@@ -42,6 +42,11 @@ public class MybatisTranslateInterceptorAutoConfiguration {
      * pageHelper如果没有配置方言，则会根据jdbc的url获取到对应的方言对象，这里达梦使用Mysql的方言
      */
     private void initPageHelperDialect() {
-        PageAutoDialect.registerDialectAlias("dm", MySqlDialect.class);
+        try {
+            Class.forName("com.github.pagehelper.page.PageAutoDialect");
+            PageAutoDialect.registerDialectAlias("dm", MySqlDialect.class);
+        } catch (ClassNotFoundException e) {
+            logger.info("未找到com.github.pagehelper.page.PageAutoDialect,不初始化PageHelper方言");
+        }
     }
 }
