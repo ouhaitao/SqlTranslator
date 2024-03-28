@@ -1,5 +1,7 @@
 package cn.cover.database.parser.mysql.visitor.dm;
 
+import cn.cover.database.parser.mysql.visitor.dm.support.CommonVisitor;
+import cn.cover.database.parser.mysql.visitor.dm.support.LimitVisitor;
 import java.util.Collection;
 import java.util.List;
 import net.sf.jsqlparser.expression.Alias;
@@ -108,13 +110,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     final Limit limit = plainSelect.getLimit();
     if (limit != null) {
-      sqlBuilder.append(" LIMIT ");
-      if (limit.getOffset() != null) {
-        sqlBuilder.append(limit.getOffset());
-      }
-      if (limit.getRowCount() != null) {
-        sqlBuilder.append(", ").append(limit.getRowCount());
-      }
+      LimitVisitor.visit(limit, sqlBuilder);
     }
   }
 
