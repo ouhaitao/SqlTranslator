@@ -5,6 +5,7 @@ import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -38,20 +39,38 @@ public class MybatisTranslateInterceptor implements Interceptor {
         Object[] invocationArgs = invocation.getArgs();
         MappedStatement statement = (MappedStatement) invocationArgs[0];
         Object parameter = invocationArgs[1];
-        
-        BoundSql boundSql = statement.getBoundSql(parameter);
-        String translateSql = sqlTranslator.translate(boundSql.getSql(), statement.getId());
+    
+        BoundSql originBoundSql;
+        if (invocationArgs.length > 4) {
+            originBoundSql = (BoundSql) invocationArgs[5];
+        } else {
+            originBoundSql = statement.getBoundSql(parameter);
+        }
+        String translateSql = sqlTranslator.translate(originBoundSql.getSql(), statement.getId());
         if (logger.isDebugEnabled()) {
-            logger.debug("原始SQL:{} 转译后SQL:{}", boundSql.getSql(), translateSql);
+            logger.debug("原始SQL:{} 转译后SQL:{}", originBoundSql.getSql(), translateSql);
         }
         
-        MappedStatement newMappedStatement = newMappedStatement(statement, boundSql, translateSql);
-        invocationArgs[0] = newMappedStatement;
-        // 对应6个参数的query方法
         if (invocationArgs.length > 4) {
-            invocationArgs[5] = newMappedStatement.getBoundSql(parameter);
+            // 对应6个参数的query方法
+            BoundSql newBoundSql = newBoundSql(statement, originBoundSql, translateSql);
+            invocationArgs[5] = newBoundSql;
+        } else {
+            MappedStatement newMappedStatement = newMappedStatement(statement, originBoundSql, translateSql);
+            invocationArgs[0] = newMappedStatement;
         }
         return invocation.proceed();
+    }
+    
+    /**
+     * 创建新的SqlSource
+     *
+     * @param statement    源ms
+     * @param originBoundSql     源boundSql
+     * @param translateSql 翻译之后的sql
+     */
+    private BoundSql newBoundSql(MappedStatement statement, BoundSql originBoundSql, String translateSql) {
+        return new BoundSql(statement.getConfiguration(), translateSql, originBoundSql.getParameterMappings(), originBoundSql.getParameterObject());
     }
     
     /**
@@ -62,8 +81,7 @@ public class MybatisTranslateInterceptor implements Interceptor {
      * @param translateSql 翻译之后的sql
      */
     private MappedStatement newMappedStatement(MappedStatement statement, BoundSql boundSql, String translateSql) {
-        // 创建新的静态SqlSource
-        StaticSqlSource staticSqlSource = new StaticSqlSource(statement.getConfiguration(), translateSql, boundSql.getParameterMappings());
+        SqlSource staticSqlSource = new StaticSqlSource(statement.getConfiguration(), translateSql, boundSql.getParameterMappings());
         
         // 复制属性
         MappedStatement.Builder builder = new MappedStatement.Builder(statement.getConfiguration(), statement.getId(), staticSqlSource, statement.getSqlCommandType());
