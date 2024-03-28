@@ -32,10 +32,14 @@ import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.statement.select.SelectItemVisitorAdapter;
 import net.sf.jsqlparser.statement.select.SelectVisitorAdapter;
+import net.sf.jsqlparser.statement.select.SetOperation;
+import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.TableFunction;
 import net.sf.jsqlparser.statement.select.ValuesList;
+import net.sf.jsqlparser.statement.select.WithItem;
+import net.sf.jsqlparser.statement.values.ValuesStatement;
 
 /**
  * @Use
@@ -76,6 +80,10 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
           sqlBuilder.append(" LEFT JOIN ");
         } else if (join.isRight()) {
           sqlBuilder.append(" RIGHT JOIN ");
+        } else if (join.isInner()) {
+          sqlBuilder.append(" INNER JOIN ");
+        } else if (join.isFull()) {
+          sqlBuilder.append(" FULL  JOIN ");
         }
 
         final FromItem rightItem = join.getRightItem();
@@ -112,6 +120,39 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     if (limit != null) {
       LimitVisitor.visit(limit, sqlBuilder);
     }
+  }
+
+
+  @Override
+  public void visit(final SetOperationList setOpList) {
+    final List<SelectBody> selects = setOpList.getSelects();
+    final List<Boolean> brackets = setOpList.getBrackets();
+    final List<SetOperation> operations = setOpList.getOperations();
+    for (int i = 0, size = (selects.size() - 1); i <= size; i++) {
+      final SelectBody selectBody = selects.get(i);
+      final Boolean b = brackets.get(i);
+      if (b) {
+        sqlBuilder.append(" ( ");
+      }
+      selectBody.accept(new DMSelectVisitor(sqlBuilder));
+      if (b) {
+        sqlBuilder.append(" ) ");
+      }
+
+      if (i != size && operations!= null && !operations.isEmpty()) {
+        sqlBuilder.append(operations.get(i).toString()).append(" ");
+      }
+    }
+  }
+
+  @Override
+  public void visit(final WithItem withItem) {
+    super.visit(withItem);
+  }
+
+  @Override
+  public void visit(final ValuesStatement aThis) {
+    super.visit(aThis);
   }
 
   static class DMSelectItemVisitor extends SelectItemVisitorAdapter {
