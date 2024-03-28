@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.JdbcParameter;
@@ -13,13 +14,17 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.MySQLGroupConcat;
 import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
+import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.FromItemVisitorAdapter;
 import net.sf.jsqlparser.statement.select.Join;
@@ -34,6 +39,7 @@ import net.sf.jsqlparser.statement.select.SelectItemVisitorAdapter;
 import net.sf.jsqlparser.statement.select.SelectVisitorAdapter;
 import net.sf.jsqlparser.statement.select.SetOperation;
 import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.select.SetOperationList.SetOperationType;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.TableFunction;
@@ -63,9 +69,12 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     for (int i = 0, size = selectItems.size(); i < size; i++) {
       final SelectItem selectItem = selectItems.get(i);
       if (i != (size - 1)) {
-        selectItem.accept(DMExpressionVisitor.getNotEnd(sqlBuilder));
+        //selectItem.accept(DMExpressionVisitor.getNotEnd(sqlBuilder));
+        selectItem.accept(new DMSelectItemVisitor(sqlBuilder, false));
+        //DMSelectItemVisitor
       } else {
-        selectItem.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+        //selectItem.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+        selectItem.accept(new DMSelectItemVisitor(sqlBuilder, true));
       }
     }
 
@@ -83,7 +92,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         } else if (join.isInner()) {
           sqlBuilder.append(" INNER JOIN ");
         } else if (join.isFull()) {
-          sqlBuilder.append(" FULL  JOIN ");
+          sqlBuilder.append(" FULL JOIN ");
         }
 
         final FromItem rightItem = join.getRightItem();
@@ -140,7 +149,13 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       }
 
       if (i != size && operations!= null && !operations.isEmpty()) {
-        sqlBuilder.append(operations.get(i).toString()).append(" ");
+        final String setOperation = operations.get(i).toString();
+        if (SetOperationType.UNION.name().equals(setOperation)) {
+          // UNION ALL 不会进行数据类型比较，它只是简单地将两个结果集合并在一起。
+          sqlBuilder.append(" UNION ALL").append(" ");
+        } else {
+          sqlBuilder.append(setOperation).append(" ");
+        }
       }
     }
   }
@@ -173,7 +188,24 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final SelectExpressionItem item) {
       final Expression expression = item.getExpression();
-      expression.accept(new DMExpressionVisitor(sqlBuilder, lastOne));
+      expression.accept(new DMExpressionVisitor(sqlBuilder, false));
+      final Alias alias = item.getAlias();
+      if (alias != null) {
+        sqlBuilder.append(" ").append("AS ").append(alias.getName()).append(" ");
+      }
+      if (!lastOne) {
+        sqlBuilder.append(", ");
+      }
+    }
+
+    @Override
+    public void visit(final AllColumns columns) {
+      columns.accept((ExpressionVisitor) DMExpressionVisitor.getEnd(sqlBuilder));
+    }
+
+    @Override
+    public void visit(final AllTableColumns columns) {
+      columns.accept((ExpressionVisitor) DMExpressionVisitor.getEnd(sqlBuilder));
     }
   }
 
@@ -181,7 +213,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
   static class DMExpressionVisitor extends ExpressionVisitorAdapter {
 
     private static final DMExpressionVisitor NOT_END = new DMExpressionVisitor(null, false);
-    private static final DMExpressionVisitor END = new DMExpressionVisitor(null, true);
+    private static final DMExpressionVisitor END = new DMExpressionVisitor(null, false);
 
     private StringBuilder sqlBuilder;
 
@@ -249,17 +281,17 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         sqlBuilder.append(columnName);
       }
 
-      if (!lastOne) {
-        sqlBuilder.append(", ");
-      }
+      //if (!lastOne) {
+      //  sqlBuilder.append(", ");
+      //}
     }
 
     @Override
     public void visit(final LongValue value) {
       sqlBuilder.append(value.getValue());
-      if (!lastOne) {
-        sqlBuilder.append(", ");
-      }
+      //if (!lastOne) {
+      //  sqlBuilder.append(", ");
+      //}
     }
 
     @Override
@@ -268,39 +300,47 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     }
 
     @Override
+    public void visit(final AllTableColumns allTableColumns) {
+      final Table table = allTableColumns.getTable();
+      sqlBuilder.append(" ").append(table.getName().toUpperCase()).append(".* ");
+    }
+
+    @Override
     public void visit(final StringValue value) {
       sqlBuilder.append("'").append(value.getValue()).append("'");
-      if (!lastOne) {
-        sqlBuilder.append(", ");
-      }
+      //if (!lastOne) {
+      //  sqlBuilder.append(", ");
+      //}
     }
 
     @Override
     public void visit(final NullValue expr) {
       sqlBuilder.append("NULL");
-      if (!lastOne) {
-        sqlBuilder.append(", ");
-      }
+      //if (!lastOne) {
+      //  sqlBuilder.append(", ");
+      //}
     }
 
     @Override
     public void visit(final Function function) {
-      sqlBuilder.append(function.getName().toUpperCase()).append("(");
+      sqlBuilder.append(" ").append(function.getName().toUpperCase()).append("(");
       final ExpressionList parameters = function.getParameters();
-      final List<Expression> expressions = parameters.getExpressions();
-      expressionListVisitor(expressions, sqlBuilder);
-      sqlBuilder.append(")");
-      if (!lastOne) {
-        sqlBuilder.append(", ");
+      if (parameters != null) {
+        final List<Expression> expressions = parameters.getExpressions();
+        expressionListVisitor(expressions, sqlBuilder);
       }
+      sqlBuilder.append(")");
+      //if (!lastOne) {
+      //  sqlBuilder.append(", ");
+      //}
     }
 
     @Override
     public void visit(JdbcParameter jdbcParameter) {
-      sqlBuilder.append("?");
-      if (!lastOne) {
-        sqlBuilder.append(", ");
-      }
+      sqlBuilder.append("? ");
+      //if (!lastOne) {
+      //  sqlBuilder.append(", ");
+      //}
     }
 
     @Override
@@ -337,6 +377,40 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     }
 
     @Override
+    public void visit(final LikeExpression expr) {
+      final Expression leftExpression = expr.getLeftExpression();
+      if (leftExpression != null) {
+        leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      }
+      if (expr.isNot()) {
+        sqlBuilder.append(" NOT");
+      }
+      sqlBuilder.append(" LIKE");
+      final Expression rightExpression = expr.getRightExpression();
+      if (rightExpression != null) {
+        rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      }
+    }
+
+    @Override
+    public void visit(final IsNullExpression expr) {
+      final Expression leftExpression = expr.getLeftExpression();
+      if (leftExpression != null) {
+        leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      }
+      sqlBuilder.append(" IS ");
+      if (expr.isNot()) {
+        sqlBuilder.append("NOT");
+      }
+      sqlBuilder.append("NULL");
+    }
+
+    @Override
+    public void visit(final Concat expr) {
+      super.visit(expr);
+    }
+
+    @Override
     public void visit(final MySQLGroupConcat groupConcat) {
       // 正对mysql的GROUP_CONCAT转成达梦WM_CONCAT
       sqlBuilder.append("WM_CONCAT(");
@@ -344,9 +418,10 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       final List<Expression> expressions = expressionList.getExpressions();
       expressionListVisitor(expressions, sqlBuilder);
       sqlBuilder.append(")");
-      if (!lastOne) {
-        sqlBuilder.append(", ");
-      }
+
+      //if (!lastOne) {
+      //  sqlBuilder.append(", ");
+      //}
     }
 
     //
