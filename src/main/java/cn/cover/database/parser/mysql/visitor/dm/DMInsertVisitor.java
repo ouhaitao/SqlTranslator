@@ -16,6 +16,7 @@ import net.sf.jsqlparser.statement.insert.Insert;
  * @Date: 2024/3/26 17:50
  */
 public class DMInsertVisitor {
+
   final Insert insert;
   final StringBuilder sqlBuilder;
 
