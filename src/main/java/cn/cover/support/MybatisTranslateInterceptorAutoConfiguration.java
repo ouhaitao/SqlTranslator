@@ -61,7 +61,10 @@ public class MybatisTranslateInterceptorAutoConfiguration {
                 return interceptorList.stream()
                     .anyMatch(interceptor -> !MybatisTranslateInterceptor.class.isAssignableFrom(interceptor.getClass()));
             })
-            .forEach(configuration -> configuration.addInterceptor(mybatisTranslateInterceptor));
+            .forEach(configuration -> {
+                configuration.addInterceptor(mybatisTranslateInterceptor);
+                logger.info("向sqlSessionFactory添加MybatisTranslateInterceptor成功");
+            });
         return mybatisTranslateInterceptor;
     }
     
