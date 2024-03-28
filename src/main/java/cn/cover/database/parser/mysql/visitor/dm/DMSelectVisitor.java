@@ -109,7 +109,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     final Limit limit = plainSelect.getLimit();
     if (limit != null) {
       sqlBuilder.append(" LIMIT ");
-      sqlBuilder.append(limit.getOffset());
+      if (limit.getOffset() != null) {
+        sqlBuilder.append(limit.getOffset());
+      }
       if (limit.getRowCount() != null) {
         sqlBuilder.append(", ").append(limit.getRowCount());
       }
