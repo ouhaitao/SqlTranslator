@@ -29,7 +29,7 @@ public class DMSqlParserTest {
   }
 
   @Test
-  public void testSubSelect() throws SqlTranslateException {
+  public void testFromSubSelect() throws SqlTranslateException {
     String sql = "SELECT\n"
         + "\t* \n"
         + "FROM\n"
@@ -38,4 +38,58 @@ public class DMSqlParserTest {
         + "\ta.NAME = 'haha'";
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
+
+  @Test
+  public void testSubSelect() throws SqlTranslateException {
+    String sql = "select * from a where a.id in (select a_id from c)";
+    System.out.println(DM_SQL_PARSER.parse(sql));
+  }
+
+  @Test
+  public void testLimit() throws SqlTranslateException {
+    String sql = "select * from a limit 1";
+    System.out.println(DM_SQL_PARSER.parse(sql));
+  }
+
+
+  @Test
+  public void projectTest() throws SqlTranslateException {
+    String sql = "SELECT\n"
+        + "\tcount( 0 ) \n"
+        + "FROM\n"
+        + "\t(\n"
+        + "\tSELECT\n"
+        + "\t\tp.id AS project_id,\n"
+        + "\t\tp.project_name,\n"
+        + "\t\tc.id AS config_id,\n"
+        + "\t\tc.config_key,\n"
+        + "\t\tc.config_value,\n"
+        + "\t\tc.config_desc,\n"
+        + "\t\t0 AS config_type \n"
+        + "\tFROM\n"
+        + "\t\tconfig c\n"
+        + "\t\tINNER JOIN project p ON c.project_id = p.id \n"
+        + "\tWHERE\n"
+        + "\t\tp.team_id = ? UNION\n"
+        + "\tSELECT\n"
+        + "\t\tt.id AS project_id,\n"
+        + "\t\tCONCAT( '团队配置[', t.team_name, ']' ) AS project_id,\n"
+        + "\t\tc.id AS config_id,\n"
+        + "\t\tc.config_key,\n"
+        + "\t\tc.config_value,\n"
+        + "\t\tc.config_desc,\n"
+        + "\t\t1 AS config_type \n"
+        + "\tFROM\n"
+        + "\t\tconfig c\n"
+        + "\t\tINNER JOIN team t ON c.team_id = t.id \n"
+        + "WHERE\n"
+        + "\tt.id = ?) table_count";
+
+
+    System.out.println(DM_SQL_PARSER.parse(sql));
+  }
+
+
+
+
 }
