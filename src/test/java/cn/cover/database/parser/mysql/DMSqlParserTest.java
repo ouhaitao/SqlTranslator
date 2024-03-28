@@ -55,7 +55,7 @@ public class DMSqlParserTest {
   @Test
   public void projectTest() throws SqlTranslateException {
 
-    String sql = "SELECT config.* FROM config c WHERE config_type = 2";
+    String sql = "select * from tb order by id,name desc";
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }

@@ -30,6 +30,7 @@ import net.sf.jsqlparser.statement.select.FromItemVisitorAdapter;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.LateralSubSelect;
 import net.sf.jsqlparser.statement.select.Limit;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.ParenthesisFromItem;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectBody;
@@ -129,6 +130,37 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     if (limit != null) {
       LimitVisitor.visit(limit, sqlBuilder);
     }
+
+    final List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
+    visitOrderBy(orderByElements);
+  }
+
+  private void visitOrderBy(final List<OrderByElement> orderByElements) {
+    if (orderByElements != null && !orderByElements.isEmpty()) {
+      sqlBuilder.append(" ORDER BY ");
+      for (int i = 0, size = (orderByElements.size() - 1); i <= size; i++) {
+        final OrderByElement orderByElement = orderByElements.get(i);
+        final Expression expression = orderByElement.getExpression();
+        final boolean desc = !orderByElement.isAsc();
+        final DMExpressionVisitor notEnd = DMExpressionVisitor.getNotEnd(sqlBuilder);
+        final DMExpressionVisitor end = DMExpressionVisitor.getEnd(sqlBuilder);
+        boolean last = (i == size);
+        if (desc && !last) {
+          expression.accept(end);
+          sqlBuilder.append(" DESC ").append(", ");
+        }
+        if (desc && last) {
+          expression.accept(end);
+          sqlBuilder.append(" DESC ");
+        }
+        if (!desc && !last) {
+          expression.accept(notEnd);
+        }
+        if (!desc && last) {
+          expression.accept(end);
+        }
+      }
+    }
   }
 
 
@@ -188,13 +220,25 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final SelectExpressionItem item) {
       final Expression expression = item.getExpression();
-      expression.accept(new DMExpressionVisitor(sqlBuilder, false));
+      DMExpressionVisitor end = DMExpressionVisitor.getEnd(sqlBuilder);
+      DMExpressionVisitor notEnd = DMExpressionVisitor.getNotEnd(sqlBuilder);
       final Alias alias = item.getAlias();
-      if (alias != null) {
-        sqlBuilder.append(" ").append("AS ").append(alias.getName()).append(" ");
+      if (!lastOne && alias != null) {
+        expression.accept(end);
+        sqlBuilder.append(" AS ").append(alias.getName()).append(", ");
       }
-      if (!lastOne) {
-        sqlBuilder.append(", ");
+
+      if (lastOne && alias != null) {
+        expression.accept(end);
+        sqlBuilder.append(" AS ").append(alias.getName()).append(" ");
+      }
+
+      if (alias == null && !lastOne) {
+        expression.accept(notEnd);
+      }
+
+      if (alias == null && lastOne) {
+        expression.accept(end);
       }
     }
 
@@ -213,7 +257,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
   static class DMExpressionVisitor extends ExpressionVisitorAdapter {
 
     private static final DMExpressionVisitor NOT_END = new DMExpressionVisitor(null, false);
-    private static final DMExpressionVisitor END = new DMExpressionVisitor(null, false);
+    private static final DMExpressionVisitor END = new DMExpressionVisitor(null, true);
 
     private StringBuilder sqlBuilder;
 
@@ -281,17 +325,17 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         sqlBuilder.append(columnName);
       }
 
-      //if (!lastOne) {
-      //  sqlBuilder.append(", ");
-      //}
+      if (!lastOne) {
+        sqlBuilder.append(", ");
+      }
     }
 
     @Override
     public void visit(final LongValue value) {
       sqlBuilder.append(value.getValue());
-      //if (!lastOne) {
-      //  sqlBuilder.append(", ");
-      //}
+      if (!lastOne) {
+        sqlBuilder.append(", ");
+      }
     }
 
     @Override
@@ -308,17 +352,17 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final StringValue value) {
       sqlBuilder.append("'").append(value.getValue()).append("'");
-      //if (!lastOne) {
-      //  sqlBuilder.append(", ");
-      //}
+      if (!lastOne) {
+        sqlBuilder.append(", ");
+      }
     }
 
     @Override
     public void visit(final NullValue expr) {
       sqlBuilder.append("NULL");
-      //if (!lastOne) {
-      //  sqlBuilder.append(", ");
-      //}
+      if (!lastOne) {
+        sqlBuilder.append(", ");
+      }
     }
 
     @Override
@@ -330,17 +374,17 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         expressionListVisitor(expressions, sqlBuilder);
       }
       sqlBuilder.append(")");
-      //if (!lastOne) {
-      //  sqlBuilder.append(", ");
-      //}
+      if (!lastOne) {
+        sqlBuilder.append(", ");
+      }
     }
 
     @Override
     public void visit(JdbcParameter jdbcParameter) {
       sqlBuilder.append("? ");
-      //if (!lastOne) {
-      //  sqlBuilder.append(", ");
-      //}
+      if (!lastOne) {
+        sqlBuilder.append(", ");
+      }
     }
 
     @Override
@@ -419,9 +463,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       expressionListVisitor(expressions, sqlBuilder);
       sqlBuilder.append(")");
 
-      //if (!lastOne) {
-      //  sqlBuilder.append(", ");
-      //}
+      if (!lastOne) {
+        sqlBuilder.append(", ");
+      }
     }
 
     //
