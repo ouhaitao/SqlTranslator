@@ -55,7 +55,7 @@ public class DMSqlParserTest {
   @Test
   public void projectTest() throws SqlTranslateException {
 
-    String sql = "select * from tb order by id,name desc";
+    String sql = "select * from team where  is_delete = 0 and ( team_name = ? or name = ? ) and id != ?";
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }

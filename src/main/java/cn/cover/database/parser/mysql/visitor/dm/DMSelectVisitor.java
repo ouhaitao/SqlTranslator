@@ -13,14 +13,17 @@ import net.sf.jsqlparser.expression.JdbcParameter;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.MySQLGroupConcat;
 import net.sf.jsqlparser.expression.NullValue;
+import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
 import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
+import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -479,6 +482,32 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
           expression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
         }
       }
+    }
+
+    @Override
+    public void visit(final Parenthesis parenthesis) {
+      sqlBuilder.append(" (");
+      final Expression expression = parenthesis.getExpression();
+      expression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      sqlBuilder.append(" ) ");
+    }
+
+    @Override
+    public void visit(final OrExpression expr) {
+      final Expression leftExpression = expr.getLeftExpression();
+      leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      sqlBuilder.append(" OR ");
+      final Expression rightExpression = expr.getRightExpression();
+      rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+    }
+
+    @Override
+    public void visit(final NotEqualsTo expr) {
+      final Expression leftExpression = expr.getLeftExpression();
+      leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      sqlBuilder.append(" != ");
+      final Expression rightExpression = expr.getRightExpression();
+      rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
     }
   }
 
