@@ -1,6 +1,8 @@
 package cn.cover.database.parser.mysql;
 
 import cn.cover.database.Parser;
+import cn.cover.database.parser.mysql.visitor.dm.Context;
+import cn.cover.database.parser.mysql.visitor.dm.ContextImpl;
 import cn.cover.database.parser.mysql.visitor.dm.DMStatementVisitor;
 import cn.cover.database.sql.RawSQL;
 import cn.cover.database.sql.SQL;
@@ -24,7 +26,10 @@ public class DMSqlParser implements Parser {
     LOGGER.info("原始的sql: {}", originSQL);
     try {
       Statement stmt = CCJSqlParserUtil.parse(originSQL);
-      stmt.accept(new DMStatementVisitor(translateSql));
+      Context context = new ContextImpl();
+      context.getContext().setSqlBuilder(translateSql);
+      context.getContext().setOriginSql(originSQL);
+      stmt.accept(new DMStatementVisitor(context));
     } catch (JSQLParserException e) {
       LOGGER.info("jsqlparser解析异常。", e);
     }

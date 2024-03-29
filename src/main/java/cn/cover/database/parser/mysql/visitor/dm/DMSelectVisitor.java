@@ -2,6 +2,7 @@ package cn.cover.database.parser.mysql.visitor.dm;
 
 import cn.cover.database.parser.mysql.visitor.dm.support.CommonVisitor;
 import cn.cover.database.parser.mysql.visitor.dm.support.LimitVisitor;
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlEnum;
 import java.util.Collection;
 import java.util.List;
 import net.sf.jsqlparser.expression.Alias;
@@ -60,24 +61,28 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
   private final StringBuilder sqlBuilder;
 
+  private Context context;
+
   public DMSelectVisitor(final StringBuilder sqlBuilder) {
     this.sqlBuilder = sqlBuilder;
   }
 
+  public DMSelectVisitor(final Context context) {
+    sqlBuilder = context.getContext().getSqlBuilder();
+    this.context = context;
+  }
+
   @Override
   public void visit(final PlainSelect plainSelect) {
-    sqlBuilder.append("SELECT ");
-
+    //SqlUtil.appendSqlEnum(sqlBuilder, SqlEnum.SELECT);
+    SqlEnum.SELECT.append(sqlBuilder);
     // select items
     final List<SelectItem> selectItems = plainSelect.getSelectItems();
     for (int i = 0, size = selectItems.size(); i < size; i++) {
       final SelectItem selectItem = selectItems.get(i);
       if (i != (size - 1)) {
-        //selectItem.accept(DMExpressionVisitor.getNotEnd(sqlBuilder));
         selectItem.accept(new DMSelectItemVisitor(sqlBuilder, false));
-        //DMSelectItemVisitor
       } else {
-        //selectItem.accept(DMExpressionVisitor.getEnd(sqlBuilder));
         selectItem.accept(new DMSelectItemVisitor(sqlBuilder, true));
       }
     }

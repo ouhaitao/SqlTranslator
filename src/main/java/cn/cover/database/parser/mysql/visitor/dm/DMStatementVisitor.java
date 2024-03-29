@@ -15,9 +15,15 @@ import net.sf.jsqlparser.statement.update.Update;
 public class DMStatementVisitor extends StatementVisitorAdapter {
 
   private final StringBuilder sqlBuilder;
+  private Context context;
 
   public DMStatementVisitor(final StringBuilder sqlBuilder) {
     this.sqlBuilder = sqlBuilder;
+  }
+
+  public DMStatementVisitor(final Context context) {
+    sqlBuilder = context.getContext().getSqlBuilder();
+    this.context = context;
   }
 
   @Override

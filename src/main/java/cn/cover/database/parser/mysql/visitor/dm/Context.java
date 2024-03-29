@@ -5,9 +5,9 @@ package cn.cover.database.parser.mysql.visitor.dm;
  * @Author: jeff
  * @Date: 2024/3/28 9:14
  */
-public interface Context<T> {
+public interface Context {
 
-  T getContext();
+  ContextAttr getContext();
 
-  void setContext(T c);
+  void setContext(ContextAttr c);
 }
