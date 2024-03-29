@@ -81,27 +81,31 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     for (int i = 0, size = selectItems.size(); i < size; i++) {
       final SelectItem selectItem = selectItems.get(i);
       if (i != (size - 1)) {
-        selectItem.accept(new DMSelectItemVisitor(sqlBuilder, false));
+        selectItem.accept(new DMSelectItemVisitor(context, false));
       } else {
-        selectItem.accept(new DMSelectItemVisitor(sqlBuilder, true));
+        selectItem.accept(new DMSelectItemVisitor(context, true));
       }
     }
 
     // from table
     final FromItem fromItem = plainSelect.getFromItem();
-    fromItem.accept(new DMFromItemVisitor(sqlBuilder));
+    fromItem.accept(new DMFromItemVisitor(context));
 
     final List<Join> joins = plainSelect.getJoins();
     if (joins != null && !joins.isEmpty()) {
       for (final Join join : joins) {
         if (join.isLeft()) {
-          sqlBuilder.append(" LEFT JOIN ");
+          //sqlBuilder.append(" LEFT JOIN ");
+          SqlEnum.LEFT_JOIN.append(sqlBuilder);
         } else if (join.isRight()) {
-          sqlBuilder.append(" RIGHT JOIN ");
+          //sqlBuilder.append(" RIGHT JOIN ");
+          SqlEnum.RIGHT_JOIN.append(sqlBuilder);
         } else if (join.isInner()) {
-          sqlBuilder.append(" INNER JOIN ");
+          //sqlBuilder.append(" INNER JOIN ");
+          SqlEnum.INNER_JOIN.append(sqlBuilder);
         } else if (join.isFull()) {
-          sqlBuilder.append(" FULL JOIN ");
+          //sqlBuilder.append(" FULL JOIN ");
+          SqlEnum.FULL_JOIN.append(sqlBuilder);
         }
 
         final FromItem rightItem = join.getRightItem();
@@ -215,6 +219,14 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     private final StringBuilder sqlBuilder;
 
     private final boolean lastOne;
+
+    private Context context;
+
+    public DMSelectItemVisitor(final Context context, boolean lastOne) {
+      this.sqlBuilder = context.getContext().getSqlBuilder();
+      this.context = context;
+      this.lastOne = lastOne;
+    }
 
     public DMSelectItemVisitor(final StringBuilder sqlBuilder, boolean lastOne) {
       this.sqlBuilder = sqlBuilder;
@@ -519,6 +531,13 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
   static class DMFromItemVisitor extends FromItemVisitorAdapter {
 
     private final StringBuilder sqlBuilder;
+
+    private Context context;
+
+    public DMFromItemVisitor(final Context context) {
+      this.sqlBuilder = context.getContext().getSqlBuilder();
+      this.context = context;
+    }
 
     public DMFromItemVisitor(final StringBuilder sqlBuilder) {
       this.sqlBuilder = sqlBuilder;
