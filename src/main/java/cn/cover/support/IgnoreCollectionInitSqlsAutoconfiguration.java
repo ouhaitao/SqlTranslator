@@ -7,6 +7,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -26,16 +27,17 @@ public class IgnoreCollectionInitSqlsAutoconfiguration {
     
     private Logger logger = LoggerFactory.getLogger(getClass());
     
-    @Autowired
     private SqlTranslatorProperties properties;
     
-    public IgnoreCollectionInitSqlsAutoconfiguration() {
+    public IgnoreCollectionInitSqlsAutoconfiguration(SqlTranslatorProperties properties) {
         logger.info("检测到sql.translator.ignore-collection-init-sqls配置={}", properties.getIgnoreCollectionInitSqls());
+        this.properties = properties;
     }
     
     @Bean
-    @ConditionalOnBean(name = "com.alibaba.druid.pool.DruidDataSource")
+    @ConditionalOnClass(name = "com.alibaba.druid.pool.DruidDataSource")
     public DruidDataSourceBeanPostProcessor druidDataSourceIgnoreAutoconfiguration() {
+        logger.info("创建DruidDataSourceBeanPostProcessor成功");
         return new DruidDataSourceBeanPostProcessor();
     }
     
