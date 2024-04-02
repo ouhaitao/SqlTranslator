@@ -36,24 +36,22 @@ public class SqlTranslator {
      */
     private final Database targetDatabase;
     
-    private final ThreadLocal<Parser> parserFactory;
+    private final Parser parser;
     
-    private final ThreadLocal<AbstractTranslator> translatorFactory;
+    private final AbstractTranslator translator;
     
     private SqlTranslator(Builder builder) {
         ignoreMapperIdSet = builder.ignoreMapperIdSet;
         originDatabase = builder.originDatabase;
         targetDatabase = builder.targetDatabase;
-        parserFactory = ThreadLocal.withInitial(this::newParser);
-        translatorFactory = ThreadLocal.withInitial(this::newTranslator);
+        parser = newParser();
+        translator = newTranslator();
     }
     
     public String translate(String originSql, String mapperId) throws SqlTranslateException {
         if (ignoreMapperIdSet.contains(mapperId)) {
             return originSql;
         }
-        Parser parser = parserFactory.get();
-        AbstractTranslator translator = translatorFactory.get();
         SQL sql = parser.parse(originSql);
         return translator.translate(sql);
     }
