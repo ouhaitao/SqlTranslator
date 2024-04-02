@@ -26,6 +26,13 @@ public class SqlTranslatorProperties {
      * 不进行转译的MapperId
      */
     private Set<String> ignoreMapperIdSet;
+    /**
+     * 需要忽略的初始化sql
+     *
+     * 部分数据源例如Druid会有创建连接时会有初始化sql
+     * 在系统启动时，会将该配置中的sql从数据源的初始化sql中删除
+     */
+    private Set<String> ignoreCollectionInitSqls;
     
     public Database getOriginDatabase() {
         return originDatabase;
@@ -49,5 +56,13 @@ public class SqlTranslatorProperties {
     
     public void setIgnoreMapperIdSet(Set<String> ignoreMapperIdSet) {
         this.ignoreMapperIdSet = ignoreMapperIdSet;
+    }
+    
+    public Set<String> getIgnoreCollectionInitSqls() {
+        return ignoreCollectionInitSqls;
+    }
+    
+    public void setIgnoreCollectionInitSqls(Set<String> ignoreCollectionInitSqls) {
+        this.ignoreCollectionInitSqls = ignoreCollectionInitSqls;
     }
 }
