@@ -10,7 +10,7 @@ public class CommonVisitor {
   public static String dealKeyword(String origin) {
     final boolean contains = SqlKeywordTrie.contains(origin);
     if (contains) {
-      return "\"" + origin + "\"";
+      return String.format("\"%s\"", origin);
     }
     return origin;
   }

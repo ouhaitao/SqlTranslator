@@ -1,5 +1,6 @@
 package cn.cover.database.parser.mysql.visitor.dm;
 
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
 import java.util.Collection;
 
 /**
@@ -9,39 +10,42 @@ import java.util.Collection;
  */
 public class ContextImpl implements Context {
 
-  private ContextAttr contextAttr = new ContextAttr();
+  private ContextAttr attr;
+
+  public static ContextImpl newInstance(String originSql) {
+    final ContextImpl context = new ContextImpl();
+    context.attr = new ContextAttr(originSql);
+    return context;
+  }
 
   @Override
   public ContextAttr getContext() {
-    return this.contextAttr;
+    return this.attr;
   }
 
   @Override
   public void setContext(final ContextAttr c) {
-    this.contextAttr = c;
+    this.attr = c;
   }
 
   public boolean putTable(String table, String alias) {
-    return contextAttr.putTable(table, alias);
+    return attr.putTable(table, alias);
   }
 
   public Collection<String> getTableAlias(String table) {
-    return contextAttr.getTableAlias(table);
+    return attr.getTableAlias(table);
   }
 
   public String getOriginSql() {
-    return contextAttr.getOriginSql();
+    return attr.getOriginSql();
   }
 
-  public void setOriginSql(final String originSql) {
-    this.contextAttr.setOriginSql(originSql);
+  public SqlAppender getSqlBuilder() {
+    return attr.getSqlAppender();
   }
 
-  public StringBuilder getSqlBuilder() {
-    return contextAttr.getSqlBuilder();
-  }
-
-  public void setSqlBuilder(final StringBuilder sqlBuilder) {
-    this.contextAttr.setSqlBuilder(sqlBuilder);
+  @Override
+  public SqlAppender sqlBuild() {
+    return this.attr.getSqlAppender();
   }
 }

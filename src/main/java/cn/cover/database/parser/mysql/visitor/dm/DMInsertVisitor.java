@@ -2,6 +2,7 @@ package cn.cover.database.parser.mysql.visitor.dm;
 
 import cn.cover.database.parser.mysql.visitor.dm.DMSelectVisitor.DMExpressionVisitor;
 import cn.cover.database.parser.mysql.visitor.dm.support.CommonVisitor;
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
 import java.util.List;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
@@ -19,16 +20,15 @@ import net.sf.jsqlparser.statement.insert.Insert;
 public class DMInsertVisitor {
 
   final Insert insert;
-  final StringBuilder sqlBuilder;
+  final SqlAppender sqlBuilder;
 
-  public DMInsertVisitor(final Insert insert, final StringBuilder sqlBuild) {
+  public DMInsertVisitor(final Insert insert, final SqlAppender sqlBuild) {
     this.insert = insert;
     this.sqlBuilder = sqlBuild;
   }
 
   public void visitor() {
     final List<Column> columns = insert.getColumns();
-
     final Table table = insert.getTable();
     sqlBuilder.append("INSERT INTO").append(" ")
         .append(CommonVisitor.dealKeyword(table.getName().toUpperCase())).append(" ");
@@ -48,9 +48,9 @@ public class DMInsertVisitor {
 
   static class DMItemsListVisitor extends ItemsListVisitorAdapter {
 
-    private final StringBuilder stringBuilder;
+    private final SqlAppender stringBuilder;
 
-    public DMItemsListVisitor(final StringBuilder stringBuilder) {
+    public DMItemsListVisitor(final SqlAppender stringBuilder) {
       this.stringBuilder = stringBuilder;
     }
 

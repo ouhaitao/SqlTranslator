@@ -1,5 +1,6 @@
 package cn.cover.database.parser.mysql.visitor.dm;
 
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
 import net.sf.jsqlparser.statement.StatementVisitorAdapter;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
@@ -14,22 +15,18 @@ import net.sf.jsqlparser.statement.update.Update;
  */
 public class DMStatementVisitor extends StatementVisitorAdapter {
 
-  private final StringBuilder sqlBuilder;
-  private Context context;
-
-  public DMStatementVisitor(final StringBuilder sqlBuilder) {
-    this.sqlBuilder = sqlBuilder;
-  }
+  private final SqlAppender sqlBuilder;
+  private final Context context;
 
   public DMStatementVisitor(final Context context) {
-    sqlBuilder = context.getContext().getSqlBuilder();
+    sqlBuilder = context.sqlBuild();
     this.context = context;
   }
 
   @Override
   public void visit(final Select select) {
     final SelectBody selectBody = select.getSelectBody();
-    selectBody.accept(new DMSelectVisitor(sqlBuilder));
+    selectBody.accept(new DMSelectVisitor(context));
   }
 
   @Override
@@ -45,6 +42,6 @@ public class DMStatementVisitor extends StatementVisitorAdapter {
 
   @Override
   public void visit(final Delete delete) {
-    new DMDeleteVisitor(sqlBuilder, delete).visitor();
+    new DMDeleteVisitor(context, delete).visitor();
   }
 }

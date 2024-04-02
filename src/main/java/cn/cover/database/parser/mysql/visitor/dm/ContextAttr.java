@@ -1,5 +1,6 @@
 package cn.cover.database.parser.mysql.visitor.dm;
 
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
@@ -14,9 +15,14 @@ public class ContextAttr {
 
   private final Multimap<String, String> tableAliasMap = LinkedListMultimap.create();
 
-  private String originSql;
+  private final String originSql;
 
-  private StringBuilder sqlBuilder;
+  private final SqlAppender sqlAppender;
+
+  public ContextAttr(String originSql) {
+    this.originSql = originSql;
+    sqlAppender = new SqlAppender();
+  }
 
   public boolean putTable(String table, String alias) {
     return tableAliasMap.put(table, alias);
@@ -30,15 +36,8 @@ public class ContextAttr {
     return originSql;
   }
 
-  public void setOriginSql(final String originSql) {
-    this.originSql = originSql;
+  public SqlAppender getSqlAppender() {
+    return sqlAppender;
   }
 
-  public StringBuilder getSqlBuilder() {
-    return sqlBuilder;
-  }
-
-  public void setSqlBuilder(final StringBuilder sqlBuilder) {
-    this.sqlBuilder = sqlBuilder;
-  }
 }

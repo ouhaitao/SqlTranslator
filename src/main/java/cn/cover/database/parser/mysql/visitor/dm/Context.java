@@ -1,5 +1,7 @@
 package cn.cover.database.parser.mysql.visitor.dm;
 
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
+
 /**
  * @Use
  * @Author: jeff
@@ -10,4 +12,8 @@ public interface Context {
   ContextAttr getContext();
 
   void setContext(ContextAttr c);
+
+  boolean putTable(String table, String alias);
+
+  SqlAppender sqlBuild();
 }

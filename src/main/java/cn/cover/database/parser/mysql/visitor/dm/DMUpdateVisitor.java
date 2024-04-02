@@ -2,6 +2,7 @@ package cn.cover.database.parser.mysql.visitor.dm;
 
 import cn.cover.database.parser.mysql.visitor.dm.DMSelectVisitor.DMExpressionVisitor;
 import cn.cover.database.parser.mysql.visitor.dm.support.CommonVisitor;
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
 import java.util.ArrayList;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
@@ -16,11 +17,11 @@ import net.sf.jsqlparser.statement.update.UpdateSet;
  */
 public class DMUpdateVisitor {
 
-  private StringBuilder sqlBuilder;
+  private SqlAppender sqlBuilder;
 
   private Update update;
 
-  public DMUpdateVisitor(final StringBuilder sqlBuilder, final Update update) {
+  public DMUpdateVisitor(final SqlAppender sqlBuilder, final Update update) {
     this.sqlBuilder = sqlBuilder;
     this.update = update;
   }
