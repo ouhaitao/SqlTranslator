@@ -31,7 +31,7 @@ public class DMStatementVisitor extends StatementVisitorAdapter {
 
   @Override
   public void visit(final Insert insert) {
-    DMInsertVisitor dmInsertVisitor = new DMInsertVisitor(insert, sqlBuilder);
+    DMInsertVisitor dmInsertVisitor = new DMInsertVisitor(insert, context);
     dmInsertVisitor.visitor();
   }
 

@@ -1,6 +1,7 @@
 package cn.cover.database.parser.mysql.visitor.dm;
 
 import cn.cover.database.parser.mysql.visitor.dm.support.CommonVisitor;
+import cn.cover.database.parser.mysql.visitor.dm.support.FunctionConverter;
 import cn.cover.database.parser.mysql.visitor.dm.support.LimitVisitor;
 import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
 import cn.cover.database.parser.mysql.visitor.dm.support.SqlEnum;
@@ -93,7 +94,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     // from table
     final FromItem fromItem = plainSelect.getFromItem();
-    fromItem.accept(new DMFromItemVisitor(context));
+    if (fromItem != null) {
+      fromItem.accept(new DMFromItemVisitor(context));
+    }
 
     final List<Join> joins = plainSelect.getJoins();
     if (joins != null && !joins.isEmpty()) {
@@ -123,7 +126,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
           //  sqlBuilder.append(tableAlias).append(" ");
           //}
           //context.putTable(tableName, tableAlias);
-          sqlBuilder.append(SqlUtil.appendTableName(table, context));
+          sqlBuilder.append(SqlUtil.appendTableName(table));
           SqlEnum.ON.append(sqlBuilder);
         }
 
@@ -432,8 +435,13 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final Function function) {
       //sqlBuilder.append(" ").append(function.getName().toUpperCase()).append("(");
-      sqlBuilder.appendClose(function.getName().toUpperCase());
+      final String upperCase = function.getName().toUpperCase();
+      sqlBuilder.appendClose(upperCase);
       SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
+
+      //FunctionConverter.convert(function, context);
+
+
       final ExpressionList parameters = function.getParameters();
       if (parameters != null) {
         final List<Expression> expressions = parameters.getExpressions();
@@ -610,7 +618,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       //if (table.getAlias() != null) {
       //  sqlBuilder.append(table.getAlias().getName());
       //}
-      sqlBuilder.append(SqlUtil.appendTableName(table, context));
+      sqlBuilder.append(SqlUtil.appendTableName(table));
     }
 
     @Override

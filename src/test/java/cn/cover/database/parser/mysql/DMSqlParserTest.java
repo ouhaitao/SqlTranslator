@@ -60,7 +60,24 @@ public class DMSqlParserTest {
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
 
+  @Test
+  public void insertTest() throws SqlTranslateException {
+    //String sql = "INSERT INTO `fm_auth_menu`(a,b,c,d,e,f,g) VALUES (92, 'AUTH', '权限管理', 0, 1, 3, NULL);";
+
+    String sql = "INSERT INTO `fm_user_login_record`\n"
+        + "   (`user_id`, `ip`, `operate_date`, `type`)\n"
+        + "   VALUES\n"
+        + " (?, ?, NOW(), ?);";
+
+    System.out.println(DM_SQL_PARSER.parse(sql));
+  }
+
+  @Test
+  public void dateTest() throws SqlTranslateException {
+    String sql = "select  DATE_FORMAT(now(),'%Y%m%d%H%i%s0000')";
 
 
+    System.out.println(DM_SQL_PARSER.parse(sql));
+  }
 
 }

@@ -29,6 +29,9 @@ public class TablePreExtract {
 
   public void extract(PlainSelect plainSelect) {
     final FromItem fromItem = plainSelect.getFromItem();
+    if (fromItem == null) {
+      return;
+    }
     fromItem.accept(new PreFromItemVisitor(context));
     final List<Join> joins = plainSelect.getJoins();
     if (joins != null && !joins.isEmpty()) {

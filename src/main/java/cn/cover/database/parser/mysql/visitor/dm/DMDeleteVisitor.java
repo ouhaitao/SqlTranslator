@@ -37,7 +37,7 @@ public class DMDeleteVisitor {
       //if (table.getAlias() != null) {
       //  sqlBuilder.append(table.getAlias()).append(" ");
       //}
-      sqlBuilder.append(SqlUtil.appendTableName(table, context));
+      sqlBuilder.append(SqlUtil.appendTableName(table));
     }
 
     final Expression where = delete.getWhere();
