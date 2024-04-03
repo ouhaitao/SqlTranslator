@@ -1,12 +1,18 @@
 package cn.cover.support;
 
 import cn.cover.util.CollectionUtils;
+import com.github.pagehelper.PageInterceptor;
 import com.github.pagehelper.dialect.helper.MySqlDialect;
 import com.github.pagehelper.page.PageAutoDialect;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -18,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.Ordered;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
@@ -25,6 +32,9 @@ import java.util.List;
  * mybatis拦截器自动配置
  */
 @Configuration
+@ConditionalOnProperty(prefix = "sql.translator", value = {"origin-database", "target-database"})
+@ConditionalOnBean(SqlSessionFactory.class)
+@AutoConfigureAfter(MybatisAutoConfiguration.class)
 @EnableConfigurationProperties(SqlTranslatorProperties.class)
 public class MybatisTranslateInterceptorAutoConfiguration {
 
@@ -32,14 +42,39 @@ public class MybatisTranslateInterceptorAutoConfiguration {
     
     public static final String MYBATIS_INTERCEPTOR_BEAN_NAME = "sqlTranslatorMybatisInterceptor";
     
+    @Autowired
+    private List<SqlSessionFactory> sqlSessionFactoryList;
+    
+    @Autowired
+    private SqlTranslatorProperties properties;
+    
     /**
-     * PageHelper的拦截器是在afterPropertiesSet方法中添加
-     * 所以MybatisTranslateInterceptor会先于PageHelper的拦截器被添加进去，所以会在PageHelper后面执行
+     * pageHelperAutoconfiguration在afterPropertiesSet方法中注入PageInterceptor
+     * 所以这里用@PostConstruct方法先于PageInterceptor注入
      */
-    @Bean(MYBATIS_INTERCEPTOR_BEAN_NAME)
-    @ConditionalOnProperty(prefix = "sql.translator", value = {"origin-database", "target-database"})
-    @ConditionalOnBean(SqlSessionFactory.class)
-    @Lazy(false)
+    @PostConstruct
+    public void init() {
+        checkPageHelperInterceptor(sqlSessionFactoryList);
+        mybatisInterceptor(properties, sqlSessionFactoryList);
+    }
+    
+    private void checkPageHelperInterceptor(List<SqlSessionFactory> sqlSessionFactoryList) {
+        boolean match;
+        try {
+            Class.forName("com.github.pagehelper.PageInterceptor");
+            match = sqlSessionFactoryList.stream()
+                .map(SqlSessionFactory::getConfiguration)
+                .flatMap(configuration -> configuration.getInterceptors().stream())
+                .anyMatch(interceptor -> interceptor.getClass().isAssignableFrom(PageInterceptor.class));
+        } catch (ClassNotFoundException e) {
+            return;
+        }
+        if (match) {
+            throw new RuntimeException("检测到sqlSession中已添加PageInterceptor,需要修改顺序");
+        }
+    }
+    
+//    @Bean(MYBATIS_INTERCEPTOR_BEAN_NAME)
     public MybatisTranslateInterceptor mybatisInterceptor(SqlTranslatorProperties properties, List<SqlSessionFactory> sqlSessionFactoryList) {
         logger.info("创建MybatisTranslateInterceptor, properties={}", properties.toString());
         SqlTranslator.Builder builder = SqlTranslator.builder()
