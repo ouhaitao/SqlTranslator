@@ -44,6 +44,7 @@ public class SqlKeywordTrie {
 
     PASSWORD("PASSWORD", KeyType.COMMON),
     INDEX("INDEX", KeyType.COMMON),
+    STATUS("STATUS", KeyType.COMMON),
 
     ;
     private String name;

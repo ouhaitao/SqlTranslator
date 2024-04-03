@@ -23,13 +23,13 @@ public class DMSqlParser implements Parser {
 
   @Override
   public SQL parse(String originSQL) throws SqlTranslateException {
-    LOGGER.info("原始的sql: {}", originSQL);
+    //LOGGER.info("原始的sql: {}", originSQL);
     try {
       Statement stmt = CCJSqlParserUtil.parse(originSQL);
       Context context = ContextImpl.newInstance(originSQL);
       stmt.accept(new DMStatementVisitor(context));
       final String sql = context.sqlBuild().toString();
-      LOGGER.info("转换之后的sql: {}", sql);
+      LOGGER.info("原始的sql：{}。\n转换之后的sql: {}", originSQL, sql);
       return new RawSQL(sql);
     } catch (JSQLParserException e) {
       LOGGER.info("jsqlparser解析异常。", e);

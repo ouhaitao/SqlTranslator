@@ -3,6 +3,8 @@ package cn.cover.database.parser.mysql.visitor.dm;
 import cn.cover.database.parser.mysql.visitor.dm.DMSelectVisitor.DMExpressionVisitor;
 import cn.cover.database.parser.mysql.visitor.dm.support.CommonVisitor;
 import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlEnum;
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlUtil;
 import java.util.ArrayList;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Column;
@@ -28,14 +30,15 @@ public class DMUpdateVisitor {
 
   public void visitor() {
     final ArrayList<UpdateSet> updateSets = update.getUpdateSets();
-    sqlBuilder.append("UPDATE ");
+    SqlEnum.UPDATE.append(sqlBuilder);
     final Table table = update.getTable();
-    if (table != null) {
-      sqlBuilder.append(CommonVisitor.dealKeyword(table.getName().toUpperCase())).append(" ");
-      if (table.getAlias() != null) {
-        sqlBuilder.append(table.getAlias());
-      }
-    }
+    sqlBuilder.append(SqlUtil.appendTableName(table));
+    //if (table != null) {
+    //  sqlBuilder.append(CommonVisitor.dealKeyword(table.getName().toUpperCase())).append(" ");
+    //  if (table.getAlias() != null) {
+    //    sqlBuilder.append(table.getAlias());
+    //  }
+    //}
     visitorUpdateSets(updateSets);
     final Expression where = update.getWhere();
     if (where != null) {
