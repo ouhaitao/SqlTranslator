@@ -58,6 +58,9 @@ public class MybatisTranslateInterceptorAutoConfiguration {
         mybatisInterceptor(properties, sqlSessionFactoryList);
     }
     
+    /**
+     * 校验sqlSessionFactory中是否已经设置的pageInterceptor
+     */
     private void checkPageHelperInterceptor(List<SqlSessionFactory> sqlSessionFactoryList) {
         boolean match;
         try {

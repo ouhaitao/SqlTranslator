@@ -16,7 +16,7 @@ import java.util.Set;
 
 /**
  * @author parry 2024/04/02
- * 用于处理
+ * 用于处理数据源当中的一些配置
  */
 @Configuration
 @ConditionalOnProperty(prefix = "sql.translator", value = {"ignore-collection-init-sqls"})
