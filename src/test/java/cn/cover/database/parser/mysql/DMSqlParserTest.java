@@ -26,7 +26,31 @@ public class DMSqlParserTest {
     //String sql = "update USER set a=12,b=12,c='haha' where id = 13 and b = ?";
     //String sql = "delete from USER where id = 13 and b = ?";
 
-    String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
+    //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
+
+    String sql = "SELECT DISTINCT\n"
+        + "\tfmum.id,\n"
+        + "\tfmum.module_name,\n"
+        + "\tfmum.module_url,\n"
+        + "\tfmum.active_time,\n"
+        + "\tfmum.STATUS,\n"
+        + "\tfmum.module_id,\n"
+        + "\tfmum.module_type,\n"
+        + "\tfmum.module_logo_url,\n"
+        + "\tfmum.module_bg_color,\n"
+        + "\tfmum.module_redirect_url,\n"
+        + "\tfmum.module_single_login_way \n"
+        + "FROM\n"
+        + "\tfm_user_moduledict fmum\n"
+        + "\tJOIN fm_user_actions fua ON fmum.id = fua.module_id\n"
+        + "\tJOIN fm_user_roleaction4menu fur ON fur.menu_id = fua.id\n"
+        + "\tJOIN fm_user_userrole fuu ON fuu.role_id = fur.role_id\n"
+        + "\tJOIN fm_user_roleprofile furp ON furp.id = fuu.role_id\n"
+        + "\tJOIN fm_user_userprofile fuup ON fuup.id = fuu.user_id \n"
+        + "WHERE\n"
+        + "\tfuu.user_id = ? \n"
+        + "\tAND furp.role_status = 0 \n"
+        + "\tAND fuup.STATUS = 1";
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
 

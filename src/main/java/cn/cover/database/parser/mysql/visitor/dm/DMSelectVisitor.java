@@ -1,5 +1,6 @@
 package cn.cover.database.parser.mysql.visitor.dm;
 
+import cn.cover.database.parser.mysql.visitor.dm.DMInsertVisitor.DMItemsListVisitor;
 import cn.cover.database.parser.mysql.visitor.dm.support.CommonVisitor;
 import cn.cover.database.parser.mysql.visitor.dm.support.FunctionConverter;
 import cn.cover.database.parser.mysql.visitor.dm.support.LimitVisitor;
@@ -27,6 +28,8 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
+import net.sf.jsqlparser.expression.operators.relational.ItemsList;
+import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitorAdapter;
 import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
@@ -113,6 +116,8 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         } else if (join.isFull()) {
           //sqlBuilder.append(" FULL JOIN ");
           SqlEnum.FULL_JOIN.append(sqlBuilder);
+        } else {
+          SqlEnum.JOIN.append(sqlBuilder);
         }
 
         final FromItem rightItem = join.getRightItem();
@@ -479,8 +484,16 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       //sqlBuilder.append(" IN (");
       SqlEnum.IN.append(sqlBuilder);
       SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
+
+      final ItemsList rightItemsList = expr.getRightItemsList();
+      if (rightItemsList != null) {
+        rightItemsList.accept(new DMItemsListVisitor(sqlBuilder));
+      }
+
       final Expression rightExpression = expr.getRightExpression();
-      rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      if (rightExpression != null) {
+        rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      }
       //sqlBuilder.append(") ");
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
     }
