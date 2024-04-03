@@ -26,11 +26,15 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitorAdapter;
 import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
+import net.sf.jsqlparser.expression.operators.relational.MinorThan;
+import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -587,6 +591,61 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       expression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
       //sqlBuilder.append(" ) ");
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
+    }
+
+    @Override
+    public void visit(final MinorThan expr) {
+      //super.visit(expr);
+      final Expression leftExpression = expr.getLeftExpression();
+      if (leftExpression != null) {
+        leftExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+      SqlEnum.LESS.append(sqlBuilder);
+      final Expression rightExpression = expr.getRightExpression();
+      if (rightExpression != null) {
+        rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+    }
+
+    @Override
+    public void visit(final MinorThanEquals expr) {
+      final Expression leftExpression = expr.getLeftExpression();
+      if (leftExpression != null) {
+        leftExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+      SqlEnum.LESS.append(sqlBuilder,false);
+      SqlEnum.Equals.append(sqlBuilder);
+      final Expression rightExpression = expr.getRightExpression();
+      if (rightExpression != null) {
+        rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+    }
+
+    @Override
+    public void visit(final GreaterThan expr) {
+      final Expression leftExpression = expr.getLeftExpression();
+      if (leftExpression != null) {
+        leftExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+      SqlEnum.GREAT.append(sqlBuilder);
+      final Expression rightExpression = expr.getRightExpression();
+      if (rightExpression != null) {
+        rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+    }
+
+    @Override
+    public void visit(final GreaterThanEquals expr) {
+      final Expression leftExpression = expr.getLeftExpression();
+      if (leftExpression != null) {
+        leftExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+      SqlEnum.GREAT.append(sqlBuilder,false);
+      SqlEnum.Equals.append(sqlBuilder);
+      final Expression rightExpression = expr.getRightExpression();
+      if (rightExpression != null) {
+        rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
     }
 
     @Override

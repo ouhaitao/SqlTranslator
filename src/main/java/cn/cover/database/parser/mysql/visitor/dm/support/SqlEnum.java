@@ -47,6 +47,8 @@ public enum SqlEnum {
   RIGHT_PARENTHESIS(" )"),
   QUESTION_MARK("?"),
   ASTERISK("*"),
+  LESS("<"),
+  GREAT(">"),
   ;
 
   private final String name;
@@ -92,14 +94,14 @@ public enum SqlEnum {
     sqlAppender.appendClose(this.name);
   }
 
-  //public void append(SqlAppender sqlAppender, boolean ws) {
-  //  if (sqlAppender == null) {
-  //    return;
-  //  }
-  //  if (ws) {
-  //    sqlAppender.append(this.name);
-  //    return;
-  //  }
-  //  sqlAppender.appendClose(this.name);
-  //}
+  public void append(SqlAppender sqlAppender, boolean ws) {
+    if (sqlAppender == null) {
+      return;
+    }
+    if (ws) {
+      sqlAppender.append(this.name);
+      return;
+    }
+    sqlAppender.appendClose(this.name);
+  }
 }
