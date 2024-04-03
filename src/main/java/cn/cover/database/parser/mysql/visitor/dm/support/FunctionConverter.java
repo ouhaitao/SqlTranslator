@@ -29,9 +29,9 @@ public class FunctionConverter {
           StringValue exp = (StringValue) expression;
           final String format = exp.getValue();
           s = CharMatcher.inRange('0', '9').retainFrom(format);
-         isEnd = format.trim().endsWith(s);
+          isEnd = format.trim().endsWith(s);
           // yyyyMMddHHmmss
-          final String replace = format.replace(s, "")
+          String replace = format.replace(s, "")
               .replace("%Y", "yyyy")
               .replace("%m", "MM")
               .replace("%d", "dd")

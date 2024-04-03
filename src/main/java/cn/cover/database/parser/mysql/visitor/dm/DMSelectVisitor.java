@@ -11,6 +11,8 @@ import cn.cover.database.parser.mysql.visitor.dm.support.TablePreExtract;
 import java.util.Collection;
 import java.util.List;
 import net.sf.jsqlparser.expression.Alias;
+import net.sf.jsqlparser.expression.CaseExpression;
+import net.sf.jsqlparser.expression.CastExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
@@ -21,7 +23,9 @@ import net.sf.jsqlparser.expression.MySQLGroupConcat;
 import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.WhenClause;
 import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
+import net.sf.jsqlparser.expression.operators.arithmetic.Division;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
@@ -357,6 +361,29 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       END.sqlBuilder = builder;
       END.notUpper = notUpper;
       return END;
+    }
+
+    @Override
+    public void visit(final CaseExpression expr) {
+      super.visit(expr);
+      final List<WhenClause> whenClauses = expr.getWhenClauses();
+      if (whenClauses != null && !whenClauses.isEmpty()) {
+        for (final WhenClause whenClause : whenClauses) {
+          whenClause.getWhenExpression();
+        }
+      }
+      final Expression elseExpression = expr.getElseExpression();
+
+    }
+
+    @Override
+    public void visit(final CastExpression expr) {
+      super.visit(expr);
+    }
+
+    @Override
+    public void visit(final Division expr) {
+
     }
 
     @Override
