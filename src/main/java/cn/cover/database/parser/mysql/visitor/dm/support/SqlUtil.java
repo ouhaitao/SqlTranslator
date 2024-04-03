@@ -84,6 +84,7 @@ public class SqlUtil {
       SqlEnum.DOT.append(sqlBuilder);
     } else {
       sqlBuilder.append(tableName);
+      SqlEnum.DOT.append(sqlBuilder);
     }
     return sqlBuilder.toString();
   }

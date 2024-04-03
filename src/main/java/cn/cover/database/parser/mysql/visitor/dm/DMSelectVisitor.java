@@ -358,7 +358,6 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       }
 
       String columnName = column.getColumnName().trim();
-
       boolean upper = true;
       if (columnName.startsWith(SqlUtil.QUOTE) || columnName.startsWith(SqlUtil.DOUBLE_QUOTE)) {
         upper = false;
@@ -374,7 +373,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       }
 
       if (upper) {
-        sqlBuilder.append(columnName.toUpperCase());
+        sqlBuilder.append(CommonVisitor.dealKeyword(columnName.toUpperCase()));
       } else {
         sqlBuilder.append(columnName);
       }
