@@ -24,7 +24,9 @@ public class DMSqlParserTest {
     //String sql = "INSERT INTO `fm_auth_menu`(a,b,c,d,e,f,g) VALUES (92, 'AUTH', '权限管理', 0, 1, 3, NULL);";
     //String sql = "select  *  from `user` where user_name = ?";
     //String sql = "update USER set a=12,b=12,c='haha' where id = 13 and b = ?";
-    String sql = "delete from USER where id = 13 and b = ?";
+    //String sql = "delete from USER where id = 13 and b = ?";
+
+    String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
 
