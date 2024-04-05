@@ -53,15 +53,11 @@ public class SqlUtil {
     }
     StringBuilder sqlBuilder = new StringBuilder();
     String tableName = table.getName().replaceAll(BACKTICK, "");
-    //final Collection<String> tableAliasCol = context.getContext().getTableAlias(tableName);
-    //if (tableAliasCol != null && !tableAliasCol.isEmpty()) {
-      sqlBuilder.append(CommonVisitor.dealKeyword(tableName.toUpperCase())).append(WHITE_SPACE);
-    //} else {
-    //  sqlBuilder.append(CommonVisitor.dealKeyword(tableName.toUpperCase())).append(WHITE_SPACE);
-    //}
+    sqlBuilder.append(CommonVisitor.dealKeyword(tableName.toUpperCase()));
     if (table.getAlias() != null) {
+      sqlBuilder.append(WHITE_SPACE);
       String tableAlias = table.getAlias().getName();
-      sqlBuilder.append(tableAlias).append(" ");
+      sqlBuilder.append(tableAlias);
     }
     return sqlBuilder.toString();
   }

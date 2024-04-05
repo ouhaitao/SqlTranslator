@@ -1,71 +1,23 @@
 package cn.cover.database.parser.mysql.visitor.dm;
 
 import cn.cover.database.parser.mysql.visitor.dm.DMInsertVisitor.DMItemsListVisitor;
-import cn.cover.database.parser.mysql.visitor.dm.support.CommonVisitor;
-import cn.cover.database.parser.mysql.visitor.dm.support.FunctionConverter;
-import cn.cover.database.parser.mysql.visitor.dm.support.LimitVisitor;
-import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
-import cn.cover.database.parser.mysql.visitor.dm.support.SqlEnum;
-import cn.cover.database.parser.mysql.visitor.dm.support.SqlUtil;
-import cn.cover.database.parser.mysql.visitor.dm.support.TablePreExtract;
-import java.util.Collection;
-import java.util.List;
-import net.sf.jsqlparser.expression.Alias;
-import net.sf.jsqlparser.expression.CaseExpression;
-import net.sf.jsqlparser.expression.CastExpression;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.JdbcParameter;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.MySQLGroupConcat;
-import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.WhenClause;
+import cn.cover.database.parser.mysql.visitor.dm.support.*;
+import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
 import net.sf.jsqlparser.expression.operators.arithmetic.Division;
+import net.sf.jsqlparser.expression.operators.arithmetic.IntegerDivision;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
-import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
-import net.sf.jsqlparser.expression.operators.relational.ItemsList;
-import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitorAdapter;
-import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.AllColumns;
-import net.sf.jsqlparser.statement.select.AllTableColumns;
-import net.sf.jsqlparser.statement.select.FromItem;
-import net.sf.jsqlparser.statement.select.FromItemVisitorAdapter;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.LateralSubSelect;
-import net.sf.jsqlparser.statement.select.Limit;
-import net.sf.jsqlparser.statement.select.OrderByElement;
-import net.sf.jsqlparser.statement.select.ParenthesisFromItem;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectBody;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItem;
-import net.sf.jsqlparser.statement.select.SelectItemVisitorAdapter;
-import net.sf.jsqlparser.statement.select.SelectVisitorAdapter;
-import net.sf.jsqlparser.statement.select.SetOperation;
-import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.create.table.ColDataType;
+import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.select.SetOperationList.SetOperationType;
-import net.sf.jsqlparser.statement.select.SubJoin;
-import net.sf.jsqlparser.statement.select.SubSelect;
-import net.sf.jsqlparser.statement.select.TableFunction;
-import net.sf.jsqlparser.statement.select.ValuesList;
-import net.sf.jsqlparser.statement.select.WithItem;
 import net.sf.jsqlparser.statement.values.ValuesStatement;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @Use
@@ -109,54 +61,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       fromItem.accept(new DMFromItemVisitor(context));
     }
 
-    final List<Join> joins = plainSelect.getJoins();
-    if (joins != null && !joins.isEmpty()) {
-      for (final Join join : joins) {
-        if (join.isLeft()) {
-          //sqlBuilder.append(" LEFT JOIN ");
-          SqlEnum.LEFT_JOIN.append(sqlBuilder);
-        } else if (join.isRight()) {
-          //sqlBuilder.append(" RIGHT JOIN ");
-          SqlEnum.RIGHT_JOIN.append(sqlBuilder);
-        } else if (join.isInner()) {
-          //sqlBuilder.append(" INNER JOIN ");
-          SqlEnum.INNER_JOIN.append(sqlBuilder);
-        } else if (join.isFull()) {
-          //sqlBuilder.append(" FULL JOIN ");
-          SqlEnum.FULL_JOIN.append(sqlBuilder);
-        } else {
-          SqlEnum.JOIN.append(sqlBuilder);
-        }
-
-        final FromItem rightItem = join.getRightItem();
-        if (rightItem instanceof Table) {
-          Table table = (Table) rightItem;
-          //String tableName = table.getName().replaceAll("`", "");
-          //sqlBuilder.append(CommonVisitor.dealKeyword(tableName.toUpperCase())).append(" ");
-          //String tableAlias = "";
-          //if (table.getAlias() != null) {
-          //  tableAlias = table.getAlias().getName();
-          //  sqlBuilder.append(tableAlias).append(" ");
-          //}
-          //context.putTable(tableName, tableAlias);
-          sqlBuilder.append(SqlUtil.appendTableName(table));
-          SqlEnum.ON.append(sqlBuilder);
-        }
-
-        final Collection<Expression> onExpressions = join.getOnExpressions();
-
-        SqlUtil.expressionListVisitor(onExpressions, context);
-        //int i = 0;
-        //int size = onExpressions.size() - 1;
-        //for (final Expression onExpression : onExpressions) {
-        //  if (i == size) {
-        //    onExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
-        //  } else {
-        //    onExpression.accept(DMExpressionVisitor.getNotEnd(sqlBuilder));
-        //  }
-        //}
-      }
-    }
+    selectJoins(plainSelect);
 
     final Expression where = plainSelect.getWhere();
     if (where != null) {
@@ -174,9 +79,39 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     visitOrderBy(orderByElements);
   }
 
+  private void selectJoins(PlainSelect plainSelect) {
+    final List<Join> joins = plainSelect.getJoins();
+    if (joins != null && !joins.isEmpty()) {
+      for (final Join join : joins) {
+        if (join.isLeft()) {
+          SqlEnum.LEFT_JOIN.append(sqlBuilder);
+        } else if (join.isRight()) {
+          SqlEnum.RIGHT_JOIN.append(sqlBuilder);
+        } else if (join.isInner()) {
+          SqlEnum.INNER_JOIN.append(sqlBuilder);
+        } else if (join.isFull()) {
+          SqlEnum.FULL_JOIN.append(sqlBuilder);
+        } else {
+          SqlEnum.JOIN.append(sqlBuilder);
+        }
+
+        final FromItem rightItem = join.getRightItem();
+        if (rightItem instanceof Table) {
+          Table table = (Table) rightItem;
+          sqlBuilder.append(SqlUtil.appendTableName(table));
+          SqlEnum.ON.append(sqlBuilder);
+        }
+
+        final Collection<Expression> onExpressions = join.getOnExpressions();
+        SqlUtil.expressionListVisitor(onExpressions, context);
+      }
+    }
+  }
+
   private void visitOrderBy(final List<OrderByElement> orderByElements) {
     if (orderByElements != null && !orderByElements.isEmpty()) {
-      sqlBuilder.append(" ORDER BY ");
+      SqlEnum.ORDER.append(sqlBuilder);
+      SqlEnum.BY.append(sqlBuilder);
       for (int i = 0, size = (orderByElements.size() - 1); i <= size; i++) {
         final OrderByElement orderByElement = orderByElements.get(i);
         final Expression expression = orderByElement.getExpression();
@@ -186,11 +121,12 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         boolean last = (i == size);
         if (desc && !last) {
           expression.accept(end);
-          sqlBuilder.append(" DESC ").append(", ");
+          SqlEnum.DESC.append(sqlBuilder);
+          SqlEnum.COMMA.append(sqlBuilder);
         }
         if (desc && last) {
           expression.accept(end);
-          sqlBuilder.append(" DESC ");
+          SqlEnum.DESC.append(sqlBuilder);
         }
         if (!desc && !last) {
           expression.accept(notEnd);
@@ -212,20 +148,21 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       final SelectBody selectBody = selects.get(i);
       final Boolean b = brackets.get(i);
       if (b) {
-        sqlBuilder.append(" ( ");
+        SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
       }
       selectBody.accept(new DMSelectVisitor(sqlBuilder));
       if (b) {
-        sqlBuilder.append(" ) ");
+        SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
       }
 
       if (i != size && operations!= null && !operations.isEmpty()) {
         final String setOperation = operations.get(i).toString();
         if (SetOperationType.UNION.name().equals(setOperation)) {
           // UNION ALL 不会进行数据类型比较，它只是简单地将两个结果集合并在一起。
-          sqlBuilder.append(" UNION ALL").append(" ");
+          SqlEnum.UNION_ALL.append(sqlBuilder);
         } else {
-          sqlBuilder.append(setOperation).append(" ");
+          sqlBuilder.append(setOperation);
+          SqlEnum.WHITE_SPACE.append(sqlBuilder);
         }
       }
     }
@@ -308,11 +245,6 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     private Context context;
 
-    //public DMExpressionVisitor(final StringBuilder sqlBuilder, boolean lastOne) {
-    //  this.sqlBuilder = sqlBuilder;
-    //  this.lastOne = lastOne;
-    //}
-
     public DMExpressionVisitor(final Context context, boolean lastOne) {
       this.lastOne = lastOne;
       this.context = context;
@@ -365,25 +297,89 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(final CaseExpression expr) {
-      super.visit(expr);
       final List<WhenClause> whenClauses = expr.getWhenClauses();
+      SqlEnum.CASE.append(sqlBuilder);
+      DMExpressionVisitor dmExpressionVisitor = DMExpressionVisitor.getEnd(context);
+      Expression switchExpression = expr.getSwitchExpression();
+      boolean usingBrackets = expr.isUsingBrackets();
+      if (usingBrackets) {
+        SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
+      }
+      if (switchExpression != null) {
+        switchExpression.accept(dmExpressionVisitor);
+      }
       if (whenClauses != null && !whenClauses.isEmpty()) {
         for (final WhenClause whenClause : whenClauses) {
-          whenClause.getWhenExpression();
+          whenClause.accept(dmExpressionVisitor);
         }
       }
-      final Expression elseExpression = expr.getElseExpression();
 
+      final Expression elseExpression = expr.getElseExpression();
+      if (elseExpression != null) {
+        SqlEnum.ELSE.append(sqlBuilder);
+        elseExpression.accept(dmExpressionVisitor);
+        SqlEnum.WHITE_SPACE.append(sqlBuilder);
+        SqlEnum.END.append(sqlBuilder);
+      }
+      if (usingBrackets) {
+        SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
+      }
+    }
+
+    @Override
+    public void visit(WhenClause expr) {
+      Expression whenExpression = expr.getWhenExpression();
+      DMExpressionVisitor dmExpressionVisitor = DMExpressionVisitor.getEnd(context);
+      SqlEnum.WHEN.append(sqlBuilder);
+      whenExpression.accept(dmExpressionVisitor);
+      SqlEnum.WHITE_SPACE.append(sqlBuilder);
+
+      Expression thenExpression = expr.getThenExpression();
+      if (thenExpression != null) {
+        SqlEnum.THEN.append(sqlBuilder);
+        thenExpression.accept(dmExpressionVisitor);
+        SqlEnum.WHITE_SPACE.append(sqlBuilder);
+      }
     }
 
     @Override
     public void visit(final CastExpression expr) {
-      super.visit(expr);
+      SqlEnum.CAST.append(sqlBuilder,false);
+      SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
+      Expression leftExpression = expr.getLeftExpression();
+      DMExpressionVisitor dmExpressionVisitor = DMExpressionVisitor.getEnd(context);
+      if (leftExpression != null) {
+        leftExpression.accept(dmExpressionVisitor);
+      }
+      ColDataType type = expr.getType();
+      if (type != null) {
+        SqlEnum.WHITE_SPACE.append(sqlBuilder);
+        // TODO 类型转换
+        String dataType = type.getDataType();
+        if ("int".equalsIgnoreCase(dataType)) {
+          dataType = "INTEGER";
+        }
+        if ("bool".equalsIgnoreCase(dataType)) {
+          dataType = "BOOLEAN";
+        }
+        SqlEnum.AS.append(sqlBuilder);
+        sqlBuilder.appendClose(dataType.toUpperCase());
+      }
+      SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
     }
 
     @Override
     public void visit(final Division expr) {
-
+      Expression leftExpression = expr.getLeftExpression();
+      DMExpressionVisitor dmExpressionVisitor = DMExpressionVisitor.getEnd(context);
+      if (leftExpression != null) {
+        leftExpression.accept(dmExpressionVisitor);
+      }
+      SqlEnum.DIVISION.append(sqlBuilder);
+      Expression rightExpression = expr.getRightExpression();
+      if (rightExpression != null) {
+        rightExpression.accept(dmExpressionVisitor);
+      }
     }
 
     @Override
@@ -394,24 +390,16 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       }
 
       String columnName = column.getColumnName().trim();
-      boolean upper = true;
-      if (columnName.startsWith(SqlUtil.QUOTE) || columnName.startsWith(SqlUtil.DOUBLE_QUOTE)) {
-        upper = false;
-      }
-
-      if (columnName.contains(SqlUtil.BACKTICK)) {
+      boolean upper = !columnName.startsWith(SqlUtil.QUOTE) && !columnName.startsWith(SqlUtil.DOUBLE_QUOTE);
+        if (columnName.contains(SqlUtil.BACKTICK)) {
         columnName = columnName.replaceAll(SqlUtil.BACKTICK, SqlUtil.BLANK);
-        //if (columnName.contains(".")) {
-        //  final String[] split = columnName.split("\\.", 2);
-        //  sqlBuilder.append(split[0]).append(".");
-        //  columnName = split[1];
-        //}
       }
 
       if (upper) {
-        sqlBuilder.append(CommonVisitor.dealKeyword(columnName.toUpperCase()));
+        String keyword = CommonVisitor.dealKeyword(columnName.toUpperCase());
+        BooleanConsumer.newInstance(lastOne).accept(sqlBuilder::appendClose, sqlBuilder::append, keyword);
       } else {
-        sqlBuilder.append(columnName);
+        BooleanConsumer.newInstance(lastOne).accept(sqlBuilder::appendClose, sqlBuilder::append, columnName);
       }
 
       if (!lastOne) {
@@ -424,6 +412,23 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       sqlBuilder.append(value.getValue());
       if (!lastOne) {
         SqlEnum.COMMA.append(sqlBuilder);
+      }
+    }
+
+    @Override
+    public void visit(DoubleValue value) {
+      sqlBuilder.append(value.getValue());
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
+    }
+
+    @Override
+    public void visit(TimeKeyExpression timeKeyExpression) {
+      super.visit(timeKeyExpression);
+      String stringValue = timeKeyExpression.getStringValue();
+      if (StringUtil.isNotBlank(stringValue)) {
+        sqlBuilder.append(stringValue);
       }
     }
 
@@ -442,47 +447,42 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         SqlEnum.DOT.append(sqlBuilder);
         SqlEnum.ASTERISK.append(sqlBuilder);
       }
-      //sqlBuilder.append(" ").append(table.getName().toUpperCase()).append(".* ");
     }
 
     @Override
     public void visit(final StringValue value) {
-      //sqlBuilder.append("'").append(value.getValue()).append("'");
       SqlEnum.QUOTE.append(sqlBuilder);
       sqlBuilder.appendClose(value.getValue());
       SqlEnum.QUOTE.append(sqlBuilder);
       if (!lastOne) {
-        //sqlBuilder.append(", ");
         SqlEnum.COMMA.append(sqlBuilder);
       }
     }
 
     @Override
     public void visit(final NullValue expr) {
-      //sqlBuilder.append("NULL");
       SqlEnum.NULL.append(sqlBuilder);
       if (!lastOne) {
-        //sqlBuilder.append(", ");
         SqlEnum.COMMA.append(sqlBuilder);
       }
     }
 
     @Override
     public void visit(final Function function) {
-      //sqlBuilder.append(" ").append(function.getName().toUpperCase()).append("(");
+
+      boolean convert = FunctionConverter.convert(function, context);
+      if (convert) {
+        return;
+      }
+
       final String upperCase = function.getName().toUpperCase();
       sqlBuilder.appendClose(upperCase);
       SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
-
-      //FunctionConverter.convert(function, context);
-
-
       final ExpressionList parameters = function.getParameters();
       if (parameters != null) {
         final List<Expression> expressions = parameters.getExpressions();
         expressionListVisitor(expressions, sqlBuilder);
       }
-      //sqlBuilder.append(")");
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
       if (!lastOne) {
         SqlEnum.COMMA.append(sqlBuilder);
@@ -491,7 +491,6 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(JdbcParameter jdbcParameter) {
-      //sqlBuilder.append("? ");
       SqlEnum.QUESTION_MARK.append(sqlBuilder);
       if (!lastOne) {
         SqlEnum.COMMA.append(sqlBuilder);
@@ -502,7 +501,6 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     public void visit(AndExpression expr) {
       final Expression leftExpression = expr.getLeftExpression();
       leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
-      //sqlBuilder.append(" AND ");
       SqlEnum.AND.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
@@ -512,7 +510,6 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     public void visit(final InExpression expr) {
       final Expression leftExpression = expr.getLeftExpression();
       leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
-      //sqlBuilder.append(" IN (");
       SqlEnum.IN.append(sqlBuilder);
       SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
 
@@ -525,16 +522,26 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       if (rightExpression != null) {
         rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
       }
-      //sqlBuilder.append(") ");
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
+    }
+
+    @Override
+    public void visit(ExpressionList expressionList) {
+      List<Expression> expressions = expressionList.getExpressions();
+      if (expressionList.isUsingBrackets()) {
+        SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
+      }
+      expressionListVisitor(expressions, sqlBuilder);
+      if (expressionList.isUsingBrackets()) {
+        SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
+      }
     }
 
     @Override
     public void visit(final EqualsTo expr) {
       final Expression leftExpression = expr.getLeftExpression();
       leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
-      //sqlBuilder.append(" = ");
-      SqlEnum.Equals.append(sqlBuilder);
+      SqlEnum.EQUALS.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
     }
@@ -551,10 +558,8 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
       }
       if (expr.isNot()) {
-        //sqlBuilder.append(" NOT");
         SqlEnum.NOT.append(sqlBuilder);
       }
-      //sqlBuilder.append(" LIKE");
       SqlEnum.LIKE.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       if (rightExpression != null) {
@@ -569,18 +574,63 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
       }
       SqlEnum.IS.append(sqlBuilder);
-      //sqlBuilder.append(" IS ");
       if (expr.isNot()) {
-        //sqlBuilder.append("NOT");
         SqlEnum.NOT.append(sqlBuilder);
       }
-      //sqlBuilder.append("NULL");
       SqlEnum.NULL.append(sqlBuilder);
     }
 
     @Override
-    public void visit(final Concat expr) {
-      //super.visit(expr);
+    public void visit(IntegerDivision expr) {
+      Expression leftExpression = expr.getLeftExpression();
+      DMExpressionVisitor dmExpressionVisitor = DMExpressionVisitor.getEnd(context);
+      if (leftExpression != null) {
+        leftExpression.accept(dmExpressionVisitor);
+      }
+      SqlEnum.DIV.append(sqlBuilder);
+      Expression rightExpression = expr.getRightExpression();
+      if (rightExpression != null) {
+        rightExpression.accept(dmExpressionVisitor);
+      }
+    }
+
+    @Override
+    public void visit(IntervalExpression expr) {
+      SqlEnum.INTERVAL.append(sqlBuilder);
+      String parameter = expr.getParameter();
+      if (StringUtil.isNotBlank(parameter)) {
+        SqlEnum.QUOTE.append(sqlBuilder);
+        sqlBuilder.appendClose(parameter);
+        SqlEnum.QUOTE.append(sqlBuilder);
+        SqlEnum.WHITE_SPACE.append(sqlBuilder);
+      }
+      String intervalType = expr.getIntervalType();
+      if (StringUtil.isNotBlank(intervalType)) {
+        sqlBuilder.appendClose(intervalType);
+      }
+    }
+
+    @Override
+    public void visit(Between expr) {
+      super.visit(expr);
+      if (expr.isNot()) {
+        SqlEnum.NOT.append(sqlBuilder);
+      }
+      Expression leftExpression = expr.getLeftExpression();
+      DMExpressionVisitor dmExpressionVisitor = DMExpressionVisitor.getEnd(context);
+      if (leftExpression != null) {
+        leftExpression.accept(dmExpressionVisitor);
+      }
+      SqlEnum.BETWEEN.append(sqlBuilder);
+      Expression betweenExpressionStart = expr.getBetweenExpressionStart();
+      if (betweenExpressionStart != null) {
+        betweenExpressionStart.accept(dmExpressionVisitor);
+      }
+      Expression betweenExpressionEnd = expr.getBetweenExpressionEnd();
+      if (betweenExpressionEnd != null) {
+        SqlEnum.AND.append(sqlBuilder);
+        betweenExpressionEnd.accept(dmExpressionVisitor);
+      }
     }
 
     @Override
@@ -612,17 +662,14 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(final Parenthesis parenthesis) {
-      //sqlBuilder.append(" (");
       SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
       final Expression expression = parenthesis.getExpression();
       expression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
-      //sqlBuilder.append(" ) ");
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
     }
 
     @Override
     public void visit(final MinorThan expr) {
-      //super.visit(expr);
       final Expression leftExpression = expr.getLeftExpression();
       if (leftExpression != null) {
         leftExpression.accept(DMExpressionVisitor.getEnd(context));
@@ -641,7 +688,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         leftExpression.accept(DMExpressionVisitor.getEnd(context));
       }
       SqlEnum.LESS.append(sqlBuilder,false);
-      SqlEnum.Equals.append(sqlBuilder);
+      SqlEnum.EQUALS.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       if (rightExpression != null) {
         rightExpression.accept(DMExpressionVisitor.getEnd(context));
@@ -668,7 +715,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         leftExpression.accept(DMExpressionVisitor.getEnd(context));
       }
       SqlEnum.GREAT.append(sqlBuilder,false);
-      SqlEnum.Equals.append(sqlBuilder);
+      SqlEnum.EQUALS.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       if (rightExpression != null) {
         rightExpression.accept(DMExpressionVisitor.getEnd(context));
@@ -679,7 +726,6 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     public void visit(final OrExpression expr) {
       final Expression leftExpression = expr.getLeftExpression();
       leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
-      //sqlBuilder.append(" OR ");
       SqlEnum.OR.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
@@ -689,7 +735,6 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     public void visit(final NotEqualsTo expr) {
       final Expression leftExpression = expr.getLeftExpression();
       leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
-      //sqlBuilder.append(" != ");
       SqlEnum.NOT_EQUALS.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
@@ -710,18 +755,11 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final Table table) {
       SqlEnum.FROM.append(sqlBuilder);
-      //sqlBuilder.append(" FROM ");
-      //String tableName = table.getName().replaceAll("`", "");
-      //sqlBuilder.append(CommonVisitor.dealKeyword(tableName.toUpperCase())).append(" ");
-      //if (table.getAlias() != null) {
-      //  sqlBuilder.append(table.getAlias().getName());
-      //}
       sqlBuilder.append(SqlUtil.appendTableName(table));
     }
 
     @Override
     public void visit(final SubSelect subSelect) {
-      //sqlBuilder.append(" FROM ");
       SqlEnum.SELECT.append(sqlBuilder);
       SubSelectVisitor.visit(subSelect, sqlBuilder);
     }
@@ -756,10 +794,8 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     static void visit(SubSelect subSelect, SqlAppender sqlBuilder) {
       final SelectBody selectBody = subSelect.getSelectBody();
-      //sqlBuilder.append(" (");
       SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
       selectBody.accept(new DMSelectVisitor(sqlBuilder));
-      //sqlBuilder.append(" ) ");
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
       final Alias alias = subSelect.getAlias();
       if (alias != null) {

@@ -10,13 +10,12 @@ import net.sf.jsqlparser.statement.select.Limit;
 public class LimitVisitor {
 
   public static void visit(Limit limit, SqlAppender sqlBuilder) {
-    //sqlBuilder.append(" LIMIT ");
     SqlEnum.LIMIT.append(sqlBuilder);
     if (limit.getOffset() != null) {
       sqlBuilder.append(limit.getOffset());
     }
     if (limit.getOffset() != null && limit.getRowCount() != null) {
-      sqlBuilder.append(", ");
+      SqlEnum.COMMA.append(sqlBuilder);
     }
     if (limit.getRowCount() != null) {
       sqlBuilder.append(limit.getRowCount());

@@ -28,51 +28,9 @@ public class DMSqlParserTest {
 
     //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
 
-    String sql = "SELECT\n"
-        + "\ts.id,\n"
-        + "\ts.NAME,\n"
-        + "\ts.DESC,\n"
-        + "\ts.img_url,\n"
-        + "\ts.img_pc_url,\n"
-        + "\ts.author_Id,\n"
-        + "\ts.date_create,\n"
-        + "\ts.keywords,\n"
-        + "\ts.icon,\n"
-        + "\ts.kind,\n"
-        + "\ts.index_id,\n"
-        + "\ts.subject_speaker,\n"
-        + "\ts.subject_speaker_desc,\n"
-        + "\ts.use_subject_kind,\n"
-        + "\ts.illustration,\n"
-        + "\ts.icon_54_19,\n"
-        + "\ts.img_url_54_19,\n"
-        + "\ts.STATUS,\n"
-        + "\ts.is_top,\n"
-        + "\ts.top_style,\n"
-        + "\ts.img_list,\n"
-        + "\ts.list_style,\n"
-        + "\ts.extra_conf,\n"
-        + "\ts.poster_share_img,\n"
-        + "\ts.sync_video_listen_channel,\n"
-        + "\ts.image_52,\n"
-        + "\ts.is_subject_channel_list,\n"
-        + "\ts.position_type,\n"
-        + "\ts.img_43,\n"
-        + "\ts.more_info_switch,\n"
-        + "\ts.is_export_ad,\n"
-        + "\tu.username,\n"
-        + "\t( CASE WHEN ( s.kind = 1 ) THEN 0 ELSE s.subscribe_count END ) subscribe_count \n"
-        + "FROM\n"
-        + "\tfm_news_subjects s\n"
-        + "\tLEFT JOIN fm_user_userprofile u ON u.id = s.author_id \n"
-        + "WHERE\n"
-        + "\ts.kind =? \n"
-        + "ORDER BY\n"
-        + "\ts.is_top DESC,\n"
-        + "\ts.index_id DESC,\n"
-        + "\ts.date_create DESC \n"
-        + "\tLIMIT ?,\n"
-        + "\t?";
+    String sql = "SELECT column_name(s)\n" +
+            "FROM table_name\n" +
+            "WHERE column_name BETWEEN value1 AND value2;";
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
 
@@ -123,8 +81,6 @@ public class DMSqlParserTest {
   @Test
   public void dateTest() throws SqlTranslateException {
     String sql = "select  DATE_FORMAT(now(),'%Y%m%d%H%i%s0000')";
-
-
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
 

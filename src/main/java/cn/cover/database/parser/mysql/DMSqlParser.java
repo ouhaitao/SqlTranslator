@@ -4,7 +4,6 @@ import cn.cover.database.Parser;
 import cn.cover.database.parser.mysql.visitor.dm.Context;
 import cn.cover.database.parser.mysql.visitor.dm.ContextImpl;
 import cn.cover.database.parser.mysql.visitor.dm.DMStatementVisitor;
-import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
 import cn.cover.database.sql.RawSQL;
 import cn.cover.database.sql.SQL;
 import cn.cover.exception.SqlTranslateException;
@@ -23,7 +22,6 @@ public class DMSqlParser implements Parser {
 
   @Override
   public SQL parse(String originSQL) throws SqlTranslateException {
-    //LOGGER.info("原始的sql: {}", originSQL);
     try {
       Statement stmt = CCJSqlParserUtil.parse(originSQL);
       Context context = ContextImpl.newInstance(originSQL);

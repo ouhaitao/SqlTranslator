@@ -1,7 +1,5 @@
 package cn.cover.database.parser.mysql.visitor.dm.support;
 
-import static cn.cover.database.parser.mysql.visitor.dm.support.SqlUtil.WHITE_SPACE;
-
 /**
  * @Use
  * @Author: jeff
@@ -35,13 +33,26 @@ public enum SqlEnum {
   AND,
   IN,
   OR,
+  ORDER,
+  BY,
+  DESC,
+  CASE,
+  WHEN,
+  THEN,
+  ELSE,
+  END,
+  CAST,
+  INTERVAL,
+  DIV,
+  BETWEEN ,
+
 
 
   COMMA(SqlUtil.COMMA),
   QUOTE(SqlUtil.QUOTE, false),
   DOUBLE_QUOTE(SqlUtil.DOUBLE_QUOTE, false),
   DOT(SqlUtil.DOT, false),
-  Equals("="),
+  EQUALS("="),
   NOT_EQUALS("!="),
   LEFT_PARENTHESIS("("),
   RIGHT_PARENTHESIS(" )"),
@@ -49,6 +60,8 @@ public enum SqlEnum {
   ASTERISK("*"),
   LESS("<"),
   GREAT(">"),
+  WHITE_SPACE(" ", false),
+  DIVISION("/"),
   ;
 
   private final String name;
@@ -69,6 +82,11 @@ public enum SqlEnum {
 
   SqlEnum(final String name, final boolean needWS) {
     this.name = name;
+    this.needWS = needWS;
+  }
+
+  SqlEnum(final boolean needWS) {
+    this.name = this.name();
     this.needWS = needWS;
   }
 
