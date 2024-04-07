@@ -323,11 +323,11 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       }
     }
 
-    public static DMExpressionVisitor getNotEnd(SqlAppender builder) {
-      DMExpressionVisitor dmExpressionVisitor = new DMExpressionVisitor(null, false);
-      dmExpressionVisitor.sqlBuilder = builder;
-      return dmExpressionVisitor;
-    }
+    //public static DMExpressionVisitor getNotEnd(SqlAppender builder) {
+    //  DMExpressionVisitor dmExpressionVisitor = new DMExpressionVisitor(null, false);
+    //  dmExpressionVisitor.sqlBuilder = builder;
+    //  return dmExpressionVisitor;
+    //}
 
     public static DMExpressionVisitor getNotEnd(Context context) {
       DMExpressionVisitor dmExpressionVisitor = new DMExpressionVisitor(null, false);
@@ -337,11 +337,11 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     }
 
 
-    public static DMExpressionVisitor getEnd(SqlAppender builder) {
-      DMExpressionVisitor dmExpressionVisitor = new DMExpressionVisitor(null, true);
-      dmExpressionVisitor.sqlBuilder = builder;
-      return dmExpressionVisitor;
-    }
+    //public static DMExpressionVisitor getEnd(SqlAppender builder) {
+    //  DMExpressionVisitor dmExpressionVisitor = new DMExpressionVisitor(null, true);
+    //  dmExpressionVisitor.sqlBuilder = builder;
+    //  return dmExpressionVisitor;
+    //}
 
     public static DMExpressionVisitor getEnd(Context context) {
       DMExpressionVisitor dmExpressionVisitor = new DMExpressionVisitor(null, true);
@@ -565,7 +565,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       final ExpressionList parameters = function.getParameters();
       if (parameters != null) {
         final List<Expression> expressions = parameters.getExpressions();
-        expressionListVisitor(expressions, sqlBuilder);
+        expressionListVisitor(expressions, context);
       }
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
       if (!lastOne) {
@@ -584,27 +584,27 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(AndExpression expr) {
       final Expression leftExpression = expr.getLeftExpression();
-      leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      leftExpression.accept(DMExpressionVisitor.getEnd(context));
       SqlEnum.AND.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
-      rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      rightExpression.accept(DMExpressionVisitor.getEnd(context));
     }
 
     @Override
     public void visit(final InExpression expr) {
       final Expression leftExpression = expr.getLeftExpression();
-      leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      leftExpression.accept(DMExpressionVisitor.getEnd(context));
       SqlEnum.IN.append(sqlBuilder);
       SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
 
       final ItemsList rightItemsList = expr.getRightItemsList();
       if (rightItemsList != null) {
-        rightItemsList.accept(new DMItemsListVisitor(sqlBuilder));
+        rightItemsList.accept(new DMItemsListVisitor(context));
       }
 
       final Expression rightExpression = expr.getRightExpression();
       if (rightExpression != null) {
-        rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+        rightExpression.accept(DMExpressionVisitor.getEnd(context));
       }
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
     }
@@ -615,7 +615,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       if (expressionList.isUsingBrackets()) {
         SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
       }
-      expressionListVisitor(expressions, sqlBuilder);
+      expressionListVisitor(expressions, context);
       if (expressionList.isUsingBrackets()) {
         SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
       }
@@ -624,10 +624,10 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final EqualsTo expr) {
       final Expression leftExpression = expr.getLeftExpression();
-      leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      leftExpression.accept(DMExpressionVisitor.getEnd(context));
       SqlEnum.EQUALS.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
-      rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      rightExpression.accept(DMExpressionVisitor.getEnd(context));
     }
 
     @Override
@@ -639,7 +639,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     public void visit(final LikeExpression expr) {
       final Expression leftExpression = expr.getLeftExpression();
       if (leftExpression != null) {
-        leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+        leftExpression.accept(DMExpressionVisitor.getEnd(context));
       }
       if (expr.isNot()) {
         SqlEnum.NOT.append(sqlBuilder);
@@ -647,7 +647,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       SqlEnum.LIKE.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       if (rightExpression != null) {
-        rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+        rightExpression.accept(DMExpressionVisitor.getEnd(context));
       }
     }
 
@@ -655,7 +655,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     public void visit(final IsNullExpression expr) {
       final Expression leftExpression = expr.getLeftExpression();
       if (leftExpression != null) {
-        leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+        leftExpression.accept(DMExpressionVisitor.getEnd(context));
       }
       SqlEnum.IS.append(sqlBuilder);
       if (expr.isNot()) {
@@ -723,7 +723,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       sqlBuilder.append("WM_CONCAT(");
       final ExpressionList expressionList = groupConcat.getExpressionList();
       final List<Expression> expressions = expressionList.getExpressions();
-      expressionListVisitor(expressions, sqlBuilder);
+      expressionListVisitor(expressions, context);
       sqlBuilder.append(")");
 
       if (!lastOne) {
@@ -733,13 +733,13 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     //
     public static void expressionListVisitor(final List<? extends Expression> expressions,
-        SqlAppender sqlBuilder) {
+        Context context) {
       for (int i = 0, size = expressions.size(); i < size; i++) {
         final Expression expression = expressions.get(i);
         if (i != (size - 1)) {
-          expression.accept(DMExpressionVisitor.getNotEnd(sqlBuilder));
+          expression.accept(DMExpressionVisitor.getNotEnd(context));
         } else {
-          expression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+          expression.accept(DMExpressionVisitor.getEnd(context));
         }
       }
     }
@@ -748,7 +748,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     public void visit(final Parenthesis parenthesis) {
       SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
       final Expression expression = parenthesis.getExpression();
-      expression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      expression.accept(DMExpressionVisitor.getEnd(context));
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
     }
 
@@ -857,19 +857,19 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final OrExpression expr) {
       final Expression leftExpression = expr.getLeftExpression();
-      leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      leftExpression.accept(DMExpressionVisitor.getEnd(context));
       SqlEnum.OR.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
-      rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      rightExpression.accept(DMExpressionVisitor.getEnd(context));
     }
 
     @Override
     public void visit(final NotEqualsTo expr) {
       final Expression leftExpression = expr.getLeftExpression();
-      leftExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      leftExpression.accept(DMExpressionVisitor.getEnd(context));
       SqlEnum.NOT_EQUALS.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
-      rightExpression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      rightExpression.accept(DMExpressionVisitor.getEnd(context));
     }
   }
 

@@ -39,29 +39,33 @@ public class DMInsertVisitor {
     if (columns != null && !columns.isEmpty()) {
       //sqlBuilder.append(" (");
       SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
-      DMExpressionVisitor.expressionListVisitor(columns, sqlBuilder);
+      DMExpressionVisitor.expressionListVisitor(columns, context);
       //sqlBuilder.append(") ");
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
     }
     SqlEnum.VALUES.append(sqlBuilder);
     SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
     final ItemsList itemsList = insert.getItemsList();
-    itemsList.accept(new DMItemsListVisitor(sqlBuilder));
+    itemsList.accept(new DMItemsListVisitor(context));
     SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
   }
 
   static class DMItemsListVisitor extends ItemsListVisitorAdapter {
 
-    private final SqlAppender stringBuilder;
+    private final Context context;
 
-    public DMItemsListVisitor(final SqlAppender stringBuilder) {
-      this.stringBuilder = stringBuilder;
+    //public DMItemsListVisitor(final SqlAppender stringBuilder) {
+    //  this.stringBuilder = stringBuilder;
+    //}
+
+    public DMItemsListVisitor(final Context context) {
+      this.context = context;
     }
 
     @Override
     public void visit(final ExpressionList expressionList) {
       final List<Expression> expressions = expressionList.getExpressions();
-      DMExpressionVisitor.expressionListVisitor(expressions, stringBuilder);
+      DMExpressionVisitor.expressionListVisitor(expressions, context);
     }
   }
 }

@@ -45,7 +45,7 @@ public class DMUpdateVisitor {
     final Expression where = update.getWhere();
     if (where != null) {
       sqlBuilder.append(" WHERE ");
-      where.accept(DMExpressionVisitor.getEnd(sqlBuilder));
+      where.accept(DMExpressionVisitor.getEnd(context));
     }
   }
 
