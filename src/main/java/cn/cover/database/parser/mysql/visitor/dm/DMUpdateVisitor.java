@@ -28,6 +28,7 @@ public class DMUpdateVisitor {
   public DMUpdateVisitor(final Context context, final Update update) {
     this.sqlBuilder = context.sqlBuild();
     this.update = update;
+    this.context = context;
   }
 
   public void visitor() {

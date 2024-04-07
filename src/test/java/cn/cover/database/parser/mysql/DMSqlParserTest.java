@@ -29,18 +29,12 @@ public class DMSqlParserTest {
     //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
 
 
-    String sql = " SELECT\n"
-        + "         a.id id,\n"
-        + "        a.action action,\n"
-        + "         a.action_name actoinName,\n"
-        + "       a.action_type\n"
-        + "         actionType,\n"
-        + "         a.parent_id parentId,\n"
-        + "       a.module_id moduleId\n"
-        + "        FROM\n"
-        + "         fm_user_actions a\n"
-        + "        LEFT JOIN\n"
-        + "        fm_user_moduledict m ON a.module_id=m.id";
+    String sql = " UPDATE\n"
+        + "\t\t`fm_user_userprofile`\n"
+        + " \t\tSET\n"
+        + "\t\t`last_login` = ?\n"
+        + "\t\tWHERE\n"
+        + " \t\t`id` =?";
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
