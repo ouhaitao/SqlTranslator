@@ -1,5 +1,7 @@
 package cn.cover.database.parser.mysql.visitor.dm;
 
+import static net.sf.jsqlparser.util.validation.metadata.NamedObject.alias;
+
 import cn.cover.database.parser.mysql.visitor.dm.DMInsertVisitor.DMItemsListVisitor;
 import cn.cover.database.parser.mysql.visitor.dm.support.*;
 import net.sf.jsqlparser.expression.*;
@@ -73,7 +75,6 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     final Expression where = plainSelect.getWhere();
     if (where != null) {
-      //sqlBuilder.append(" WHERE ");
       SqlEnum.WHERE.append(sqlBuilder);
       where.accept(DMExpressionVisitor.getEnd(context));
     }
@@ -209,14 +210,14 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       if (!lastOne && alias != null) {
         expression.accept(end);
         SqlEnum.AS.append(sqlBuilder);
-        sqlBuilder.append(alias.getName());
+        sqlBuilder.append(alias.getName().replace(SqlUtil.BACKTICK, ""));
         SqlEnum.COMMA.append(sqlBuilder);
       }
 
       if (lastOne && alias != null) {
         expression.accept(end);
         SqlEnum.AS.append(sqlBuilder);
-        sqlBuilder.append(alias.getName());
+        sqlBuilder.append(alias.getName().replace(SqlUtil.BACKTICK, ""));
       }
 
       if (alias == null && !lastOne) {
@@ -235,7 +236,13 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(final AllTableColumns columns) {
-      columns.accept((ExpressionVisitor) DMExpressionVisitor.getEnd(context));
+      ExpressionVisitor end = DMExpressionVisitor.getEnd(context);
+      ExpressionVisitor notEnd = DMExpressionVisitor.getNotEnd(context);
+      if (lastOne) {
+        columns.accept(end);
+      } else {
+        columns.accept(notEnd);
+      }
     }
   }
 
@@ -327,6 +334,8 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         SqlEnum.ELSE.append(sqlBuilder);
         elseExpression.accept(dmExpressionVisitor);
         SqlEnum.WHITE_SPACE.append(sqlBuilder);
+        SqlEnum.END.append(sqlBuilder);
+      } else {
         SqlEnum.END.append(sqlBuilder);
       }
       if (usingBrackets) {
@@ -448,17 +457,26 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final AllTableColumns allTableColumns) {
       final Table table = allTableColumns.getTable();
-      final String tableName = table.getName();
-      final Collection<String> tableAlias = context.getContext().getTableAlias(tableName);
-      if (tableAlias != null && !tableAlias.isEmpty()) {
-        sqlBuilder.appendClose(CommonVisitor.dealKeyword(tableName.toUpperCase()));
-        SqlEnum.DOT.append(sqlBuilder);
-        SqlEnum.ASTERISK.append(sqlBuilder);
-        return;
+
+      final String prefixForColumn = SqlUtil.tablePrefixForColumn(table, context);
+      if (prefixForColumn != null && !prefixForColumn.isEmpty()) {
+        sqlBuilder.appendClose(prefixForColumn);
       }
-      sqlBuilder.appendClose(tableName);
-      SqlEnum.DOT.append(sqlBuilder);
+
+      //final String tableName = table.getName();
+      //final Collection<String> tableAlias = context.getContext().getTableAlias(tableName);
+      //if (tableAlias != null && !tableAlias.isEmpty()) {
+      //  sqlBuilder.appendClose(CommonVisitor.dealKeyword(tableName.toUpperCase()));
+      //  SqlEnum.DOT.append(sqlBuilder);
+      //  SqlEnum.ASTERISK.append(sqlBuilder);
+      //  return;
+      //}
+      //sqlBuilder.appendClose(tableName);
+      //SqlEnum.DOT.append(sqlBuilder);
       SqlEnum.ASTERISK.append(sqlBuilder);
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
 
     @Override
@@ -495,6 +513,10 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       final String upperCase = function.getName().toUpperCase();
       sqlBuilder.appendClose(upperCase);
       SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
+
+      if (function.isDistinct()) {
+        SqlEnum.DISTINCT.append(sqlBuilder);
+      }
       final ExpressionList parameters = function.getParameters();
       if (parameters != null) {
         final List<Expression> expressions = parameters.getExpressions();

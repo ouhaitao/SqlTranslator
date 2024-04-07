@@ -28,7 +28,16 @@ public class DMSqlParserTest {
 
     //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
 
-    String sql = "SELECT DISTINCT b.id,b.name FROM fm_news_brokenews b ";
+    String sql = "select\n"
+        + "       c.*,n.name as channel_name\n"
+        + "        ,cg.`name` as column_group_name\n"
+        + "       ,cg.`is_disable` as column_group_is_disable\n"
+        + "        from fm_common_column c\n"
+        + "        LEFT JOIN fm_common_newschannel n ON c.channel_id=n.id\n"
+        + "        LEFT JOIN fm_common_column_bottomservice cb ON  c.id = cb.column_id\n"
+        + "       LEFT JOIN fm_common_columngroup cg ON cb.type = cg.id\n"
+        + "        WHERE\n"
+        + "        1=1 AND c.is_disable = 0";
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }

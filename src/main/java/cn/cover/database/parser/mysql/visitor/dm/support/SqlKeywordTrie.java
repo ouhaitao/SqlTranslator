@@ -41,10 +41,16 @@ public class SqlKeywordTrie {
     // T
     TYPE("TYPE", KeyType.COMMON),
 
+    DESC("DESC", KeyType.COMMON),
+
+    ORDER("ORDER", KeyType.COMMON),
+
+    RENAME("RENAME", KeyType.COMMON),
 
     PASSWORD("PASSWORD", KeyType.COMMON),
     INDEX("INDEX", KeyType.COMMON),
     STATUS("STATUS", KeyType.COMMON),
+    SIZE("SIZE", KeyType.COMMON),
 
     ;
     private String name;
