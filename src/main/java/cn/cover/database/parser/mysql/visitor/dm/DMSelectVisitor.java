@@ -150,7 +150,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       if (b) {
         SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
       }
-      selectBody.accept(new DMSelectVisitor(sqlBuilder));
+      selectBody.accept(new DMSelectVisitor(context));
       if (b) {
         SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
       }
@@ -548,7 +548,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(final SubSelect subSelect) {
-      SubSelectVisitor.visit(subSelect, sqlBuilder);
+      SubSelectVisitor.visit(subSelect, context);
     }
 
     @Override
@@ -761,7 +761,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final SubSelect subSelect) {
       SqlEnum.SELECT.append(sqlBuilder);
-      SubSelectVisitor.visit(subSelect, sqlBuilder);
+      SubSelectVisitor.visit(subSelect, context);
     }
 
     @Override
@@ -792,14 +792,14 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
   static class SubSelectVisitor {
 
-    static void visit(SubSelect subSelect, SqlAppender sqlBuilder) {
+    static void visit(SubSelect subSelect, Context context) {
       final SelectBody selectBody = subSelect.getSelectBody();
-      SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
-      selectBody.accept(new DMSelectVisitor(sqlBuilder));
-      SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
+      SqlEnum.LEFT_PARENTHESIS.append(context.sqlBuild());
+      selectBody.accept(new DMSelectVisitor(context));
+      SqlEnum.RIGHT_PARENTHESIS.append(context.sqlBuild());
       final Alias alias = subSelect.getAlias();
       if (alias != null) {
-        sqlBuilder.append(alias.getName());
+        context.sqlBuild().append(alias.getName());
       }
     }
   }

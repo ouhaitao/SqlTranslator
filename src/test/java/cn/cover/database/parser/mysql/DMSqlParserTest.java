@@ -28,14 +28,7 @@ public class DMSqlParserTest {
 
     //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
 
-    String sql = "\n"
-        + "    SELECT\n"
-        + "        m.menu_id actionId,\n"
-        + "        m.func_id functionId   \n"
-        + "    FROM\n"
-        + "        fm_user_roleaction4menu m   \n"
-        + "    WHERE\n"
-        + "        m.role_id=100";
+    String sql = "SELECT count(0) FROM (SELECT p.id AS project_id, p.project_name, c.id AS config_id, c.config_key, c.config_value, c.config_desc, 0 AS config_type FROM config c INNER JOIN project p ON c.project_id = p.id WHERE p.team_id = ? UNION SELECT t.id AS project_id, CONCAT('团队配置[', t.team_name, ']') AS project_id, c.id AS config_id, c.config_key, c.config_value, c.config_desc, 1 AS config_type FROM config c INNER JOIN team t ON c.team_id = t.id WHERE t.id = ?) table_count";
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
 
