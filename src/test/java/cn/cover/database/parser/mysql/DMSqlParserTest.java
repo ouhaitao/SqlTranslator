@@ -28,9 +28,19 @@ public class DMSqlParserTest {
 
     //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
 
-    String sql = "SELECT column_name(s)\n" +
-            "FROM table_name\n" +
-            "WHERE column_name BETWEEN value1 AND value2;";
+    String sql = "SELECT\n"
+        + "           \n"
+        + "        id\n"
+        + "        , `name`, keywords, `type`, icon, width, Height, index_no, parent_id, is_banner,is_app_disable,is_web_disable,\n"
+        + "      is_wap_disable,is_new_channel,has_activity_region,is_force_subscription,label, is_local_channel,is_hot,show_name,\n"
+        + "   subscibe_show_name,area_level,is_auto_link_content,type2,app_list_style,is_disable,is_special_channel,is_move_wanxiang,move_wanxiang_num,\n"
+        + "     icon_normal,icon_selected,style,webview_url, show_more_service, is_default_subscribe,bottom_page,theme_img_url, channel_level,show_weather,show_roll\n"
+        + "     \n"
+        + "       FROM\n"
+        + "        fm_common_newschannel\n"
+        + "        WHERE\n"
+        + "       parent_id is null\n and id in (1,2,3)"
+        + "        ORDER BY index_no";
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
 

@@ -397,9 +397,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
       if (upper) {
         String keyword = CommonVisitor.dealKeyword(columnName.toUpperCase());
-        BooleanConsumer.newInstance(lastOne).accept(sqlBuilder::appendClose, sqlBuilder::append, keyword);
+        BooleanConsumer.newInstance(lastOne).accept(sqlBuilder::append, sqlBuilder::append, keyword);
       } else {
-        BooleanConsumer.newInstance(lastOne).accept(sqlBuilder::appendClose, sqlBuilder::append, columnName);
+        BooleanConsumer.newInstance(lastOne).accept(sqlBuilder::append, sqlBuilder::append, columnName);
       }
 
       if (!lastOne) {
