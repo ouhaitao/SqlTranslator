@@ -760,7 +760,7 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(final SubSelect subSelect) {
-      SqlEnum.SELECT.append(sqlBuilder);
+      SqlEnum.FROM.append(sqlBuilder);
       SubSelectVisitor.visit(subSelect, context);
     }
 
