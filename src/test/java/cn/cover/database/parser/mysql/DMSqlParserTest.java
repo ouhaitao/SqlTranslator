@@ -28,7 +28,7 @@ public class DMSqlParserTest {
 
     //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
 
-    String sql = "SELECT column1 FROM t1 WHERE EXISTS (SELECT * FROM t2);";
+    String sql = "SELECT DISTINCT b.id,b.name FROM fm_news_brokenews b ";
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }

@@ -48,6 +48,11 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     new TablePreExtract(context).extract(plainSelect);
 
+    final Distinct distinct = plainSelect.getDistinct();
+    if (distinct != null) {
+      SqlEnum.DISTINCT.append(sqlBuilder);
+    }
+
     final List<SelectItem> selectItems = plainSelect.getSelectItems();
     for (int i = 0, size = selectItems.size(); i < size; i++) {
       final SelectItem selectItem = selectItems.get(i);
@@ -449,7 +454,16 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         sqlBuilder.appendClose(CommonVisitor.dealKeyword(tableName.toUpperCase()));
         SqlEnum.DOT.append(sqlBuilder);
         SqlEnum.ASTERISK.append(sqlBuilder);
+        return;
       }
+      sqlBuilder.appendClose(tableName);
+      SqlEnum.DOT.append(sqlBuilder);
+      SqlEnum.ASTERISK.append(sqlBuilder);
+    }
+
+    @Override
+    public void visit(final IsDistinctExpression isDistinctExpression) {
+      super.visit(isDistinctExpression);
     }
 
     @Override
