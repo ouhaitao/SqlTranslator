@@ -29,12 +29,14 @@ public class DMSqlParserTest {
     //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
 
 
-    String sql = " UPDATE\n"
-        + "\t\t`fm_user_userprofile`\n"
-        + " \t\tSET\n"
-        + "\t\t`last_login` = ?\n"
-        + "\t\tWHERE\n"
-        + " \t\t`id` =?";
+    String sql = "select draft_article_id , count(1) num\n"
+        + "       from fm_common_image\n"
+        + "       where draft_article_id in\n"
+        + "        (  \n"
+        + "           ?\n"
+        + "          ) \n"
+        + "       and is_deleted = 0\n"
+        + "        group by draft_article_id";
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }

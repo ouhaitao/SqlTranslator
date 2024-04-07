@@ -59,6 +59,7 @@ import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.Distinct;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.FromItemVisitorAdapter;
+import net.sf.jsqlparser.statement.select.GroupByElement;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.LateralSubSelect;
 import net.sf.jsqlparser.statement.select.Limit;
@@ -133,6 +134,17 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     if (where != null) {
       SqlEnum.WHERE.append(sqlBuilder);
       where.accept(DMExpressionVisitor.getEnd(context));
+    }
+
+    final GroupByElement groupBy = plainSelect.getGroupBy();
+    if (groupBy != null) {
+      SqlEnum.GROUP.append(sqlBuilder);
+      SqlEnum.BY.append(sqlBuilder);
+      final ExpressionList groupByExpressionList = groupBy.getGroupByExpressionList();
+      final List<Expression> expressions = groupByExpressionList.getExpressions();
+      if (expressions != null && !expressions.isEmpty()) {
+        DMExpressionVisitor.expressionListVisitor(expressions, context);
+      }
     }
 
     final List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
@@ -589,6 +601,8 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       final Expression rightExpression = expr.getRightExpression();
       rightExpression.accept(DMExpressionVisitor.getEnd(context));
     }
+
+
 
     @Override
     public void visit(final InExpression expr) {

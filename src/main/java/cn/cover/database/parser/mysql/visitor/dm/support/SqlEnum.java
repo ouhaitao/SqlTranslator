@@ -47,6 +47,7 @@ public enum SqlEnum {
   BETWEEN,
   EXISTS,
   DISTINCT,
+  GROUP,
 
 
 
