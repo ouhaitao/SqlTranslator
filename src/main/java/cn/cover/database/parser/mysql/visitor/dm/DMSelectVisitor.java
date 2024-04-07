@@ -109,6 +109,10 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
           Table table = (Table) rightItem;
           sqlBuilder.append(SqlUtil.appendTableName(table));
           SqlEnum.ON.append(sqlBuilder);
+        } else if (rightItem instanceof SubSelect) {
+          SubSelect subSelect = (SubSelect) rightItem;
+          SubSelectVisitor.visit(subSelect, context);
+          SqlEnum.ON.append(sqlBuilder);
         }
 
         final Collection<Expression> onExpressions = join.getOnExpressions();
@@ -452,6 +456,11 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     @Override
     public void visit(final AllColumns allColumns) {
       SqlEnum.ASTERISK.append(sqlBuilder);
+    }
+
+    @Override
+    public void visit(final Concat expr) {
+      super.visit(expr);
     }
 
     @Override
