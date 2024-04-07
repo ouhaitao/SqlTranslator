@@ -33,4 +33,33 @@ public class DMSqlParser implements Parser {
       throw new SqlTranslateException(e.getMessage());
     }
   }
+
+  public static void main(String[] args) {
+    final DMSqlParser parse = new DMSqlParser();
+    String txt = " SELECT\n"
+        + "         a.id id,\n"
+        + "        a.action action,\n"
+        + "         a.action_name actoinName,\n"
+        + "       a.action_type\n"
+        + "         actionType,\n"
+        + "         a.parent_id parentId,\n"
+        + "       a.module_id moduleId\n"
+        + "        FROM\n"
+        + "         fm_user_actions a\n"
+        + "        LEFT JOIN\n"
+        + "        fm_user_moduledict m ON a.module_id=m.id";
+    for (int i = 0; i < 10; i++) {
+      new Thread(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            final RawSQL parse1 = (RawSQL) parse.parse(txt);
+            System.out.println(Thread.currentThread().getName() + " : " + parse1.getSql());
+          } catch (SqlTranslateException e) {
+            throw new RuntimeException(e);
+          }
+        }
+      }).start();
+    }
+  }
 }

@@ -1,10 +1,34 @@
 package cn.cover.database.parser.mysql.visitor.dm;
 
-import static net.sf.jsqlparser.util.validation.metadata.NamedObject.alias;
-
 import cn.cover.database.parser.mysql.visitor.dm.DMInsertVisitor.DMItemsListVisitor;
-import cn.cover.database.parser.mysql.visitor.dm.support.*;
-import net.sf.jsqlparser.expression.*;
+import cn.cover.database.parser.mysql.visitor.dm.support.BooleanConsumer;
+import cn.cover.database.parser.mysql.visitor.dm.support.CommonVisitor;
+import cn.cover.database.parser.mysql.visitor.dm.support.FunctionConverter;
+import cn.cover.database.parser.mysql.visitor.dm.support.LimitVisitor;
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlAppender;
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlEnum;
+import cn.cover.database.parser.mysql.visitor.dm.support.SqlUtil;
+import cn.cover.database.parser.mysql.visitor.dm.support.StringUtil;
+import cn.cover.database.parser.mysql.visitor.dm.support.TablePreExtract;
+import java.util.Collection;
+import java.util.List;
+import net.sf.jsqlparser.expression.Alias;
+import net.sf.jsqlparser.expression.CaseExpression;
+import net.sf.jsqlparser.expression.CastExpression;
+import net.sf.jsqlparser.expression.DoubleValue;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.ExpressionVisitor;
+import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
+import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.IntervalExpression;
+import net.sf.jsqlparser.expression.JdbcParameter;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.MySQLGroupConcat;
+import net.sf.jsqlparser.expression.NullValue;
+import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.TimeKeyExpression;
+import net.sf.jsqlparser.expression.WhenClause;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
 import net.sf.jsqlparser.expression.operators.arithmetic.Division;
@@ -13,16 +37,48 @@ import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.*;
+import net.sf.jsqlparser.expression.operators.relational.Between;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.ExistsExpression;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.IsDistinctExpression;
+import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
+import net.sf.jsqlparser.expression.operators.relational.ItemsList;
+import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
+import net.sf.jsqlparser.expression.operators.relational.MinorThan;
+import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.create.table.ColDataType;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.AllTableColumns;
+import net.sf.jsqlparser.statement.select.Distinct;
+import net.sf.jsqlparser.statement.select.FromItem;
+import net.sf.jsqlparser.statement.select.FromItemVisitorAdapter;
+import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.LateralSubSelect;
+import net.sf.jsqlparser.statement.select.Limit;
+import net.sf.jsqlparser.statement.select.OrderByElement;
+import net.sf.jsqlparser.statement.select.ParenthesisFromItem;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.SelectItemVisitorAdapter;
+import net.sf.jsqlparser.statement.select.SelectVisitorAdapter;
+import net.sf.jsqlparser.statement.select.SetOperation;
+import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SetOperationList.SetOperationType;
+import net.sf.jsqlparser.statement.select.SubJoin;
+import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.statement.select.TableFunction;
+import net.sf.jsqlparser.statement.select.ValuesList;
+import net.sf.jsqlparser.statement.select.WithItem;
 import net.sf.jsqlparser.statement.values.ValuesStatement;
-
-import java.util.Collection;
-import java.util.List;
 
 /**
  * @Use
@@ -79,13 +135,13 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       where.accept(DMExpressionVisitor.getEnd(context));
     }
 
+    final List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
+    visitOrderBy(orderByElements);
+
     final Limit limit = plainSelect.getLimit();
     if (limit != null) {
       LimitVisitor.visit(limit, sqlBuilder);
     }
-
-    final List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
-    visitOrderBy(orderByElements);
   }
 
   private void selectJoins(PlainSelect plainSelect) {
@@ -129,8 +185,8 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         final OrderByElement orderByElement = orderByElements.get(i);
         final Expression expression = orderByElement.getExpression();
         final boolean desc = !orderByElement.isAsc();
-        final DMExpressionVisitor notEnd = DMExpressionVisitor.getNotEnd(sqlBuilder);
-        final DMExpressionVisitor end = DMExpressionVisitor.getEnd(sqlBuilder);
+        final DMExpressionVisitor notEnd = DMExpressionVisitor.getNotEnd(context);
+        final DMExpressionVisitor end = DMExpressionVisitor.getEnd(context);
         boolean last = (i == size);
         if (desc && !last) {
           expression.accept(end);
@@ -253,14 +309,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
   public static class DMExpressionVisitor extends ExpressionVisitorAdapter {
 
-    private static final DMExpressionVisitor NOT_END = new DMExpressionVisitor(null, false);
-    private static final DMExpressionVisitor END = new DMExpressionVisitor(null, true);
-
     private SqlAppender sqlBuilder;
 
     private final boolean lastOne;
-
-    private boolean notUpper = true;
 
     private Context context;
 
@@ -272,46 +323,31 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       }
     }
 
-    //public DMExpressionVisitor(final StringBuilder sqlBuilder) {
-    //  this(sqlBuilder, false);
-    //}
-
-    public DMExpressionVisitor(final Context context) {
-      this(context, false);
-    }
-
     public static DMExpressionVisitor getNotEnd(SqlAppender builder) {
-      NOT_END.sqlBuilder = builder;
-      return NOT_END;
+      DMExpressionVisitor dmExpressionVisitor = new DMExpressionVisitor(null, false);
+      dmExpressionVisitor.sqlBuilder = builder;
+      return dmExpressionVisitor;
     }
 
     public static DMExpressionVisitor getNotEnd(Context context) {
-      NOT_END.sqlBuilder = context.sqlBuild();
-      NOT_END.context = context;
-      return NOT_END;
+      DMExpressionVisitor dmExpressionVisitor = new DMExpressionVisitor(null, false);
+      dmExpressionVisitor.sqlBuilder = context.sqlBuild();
+      dmExpressionVisitor.context = context;
+      return dmExpressionVisitor;
     }
 
-    public static DMExpressionVisitor getNotEnd(SqlAppender builder, boolean notUpper) {
-      NOT_END.sqlBuilder = builder;
-      NOT_END.notUpper = notUpper;
-      return NOT_END;
-    }
 
     public static DMExpressionVisitor getEnd(SqlAppender builder) {
-      END.sqlBuilder = builder;
-      return END;
+      DMExpressionVisitor dmExpressionVisitor = new DMExpressionVisitor(null, true);
+      dmExpressionVisitor.sqlBuilder = builder;
+      return dmExpressionVisitor;
     }
 
     public static DMExpressionVisitor getEnd(Context context) {
-      END.sqlBuilder = context.sqlBuild();
-      END.context = context;
-      return END;
-    }
-
-    public static DMExpressionVisitor getEnd(SqlAppender builder, boolean notUpper) {
-      END.sqlBuilder = builder;
-      END.notUpper = notUpper;
-      return END;
+      DMExpressionVisitor dmExpressionVisitor = new DMExpressionVisitor(null, true);
+      dmExpressionVisitor.sqlBuilder = context.sqlBuild();
+      dmExpressionVisitor.context = context;
+      return dmExpressionVisitor;
     }
 
     @Override

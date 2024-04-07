@@ -23,8 +23,10 @@ public class DMUpdateVisitor {
 
   private Update update;
 
-  public DMUpdateVisitor(final SqlAppender sqlBuilder, final Update update) {
-    this.sqlBuilder = sqlBuilder;
+  private Context context;
+
+  public DMUpdateVisitor(final Context context, final Update update) {
+    this.sqlBuilder = context.sqlBuild();
     this.update = update;
   }
 
@@ -60,9 +62,9 @@ public class DMUpdateVisitor {
           for (int i1 = 0; i1 <= isize; i1++) {
             DMExpressionVisitor dmExpressionVisitor;
             if (i1 == isize) {
-              dmExpressionVisitor = DMExpressionVisitor.getEnd(sqlBuilder);
+              dmExpressionVisitor = DMExpressionVisitor.getEnd(context);
             } else {
-              dmExpressionVisitor = DMExpressionVisitor.getNotEnd(sqlBuilder);
+              dmExpressionVisitor = DMExpressionVisitor.getNotEnd(context);
             }
             final Column column = columns.get(i1);
             column.accept(dmExpressionVisitor);

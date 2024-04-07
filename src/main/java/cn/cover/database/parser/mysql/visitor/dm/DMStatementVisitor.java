@@ -37,7 +37,7 @@ public class DMStatementVisitor extends StatementVisitorAdapter {
 
   @Override
   public void visit(final Update update) {
-    new DMUpdateVisitor(sqlBuilder, update).visitor();
+    new DMUpdateVisitor(context, update).visitor();
   }
 
   @Override

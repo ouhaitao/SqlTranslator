@@ -28,7 +28,19 @@ public class DMSqlParserTest {
 
     //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
 
-    String sql = "SELECT count(0) FROM fm_topic_topic t LEFT JOIN fm_topic_topicdynamicdata ftt_data ON t.id = ftt_data.id LEFT JOIN (SELECT 1 AS isHot, topic_id FROM `fm_topic_hottopic` WHERE type = 0) a ON a.topic_id = t.id LEFT JOIN (SELECT 1 AS isHotVideoTopic, topic_id FROM `fm_topic_hottopic` WHERE type = 1) b ON b.topic_id = t.id WHERE 1 = 1 AND t.create_time > ? AND t.title LIKE CONCAT('%', ?, '%')";
+
+    String sql = " SELECT\n"
+        + "         a.id id,\n"
+        + "        a.action action,\n"
+        + "         a.action_name actoinName,\n"
+        + "       a.action_type\n"
+        + "         actionType,\n"
+        + "         a.parent_id parentId,\n"
+        + "       a.module_id moduleId\n"
+        + "        FROM\n"
+        + "         fm_user_actions a\n"
+        + "        LEFT JOIN\n"
+        + "        fm_user_moduledict m ON a.module_id=m.id";
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
