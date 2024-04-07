@@ -3,9 +3,12 @@ package cn.cover.database.parser.mysql.visitor.dm;
 import cn.cover.database.parser.mysql.visitor.dm.DMInsertVisitor.DMItemsListVisitor;
 import cn.cover.database.parser.mysql.visitor.dm.support.*;
 import net.sf.jsqlparser.expression.*;
+import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
 import net.sf.jsqlparser.expression.operators.arithmetic.Division;
 import net.sf.jsqlparser.expression.operators.arithmetic.IntegerDivision;
+import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
+import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
@@ -666,6 +669,54 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       final Expression expression = parenthesis.getExpression();
       expression.accept(DMExpressionVisitor.getEnd(sqlBuilder));
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
+    }
+
+    @Override
+    public void visit(final Addition expr) {
+      final Expression leftExpression = expr.getLeftExpression();
+      if (leftExpression != null) {
+        leftExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+      SqlEnum.ADD.append(sqlBuilder);
+      final Expression rightExpression = expr.getRightExpression();
+      if (rightExpression != null) {
+        rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+    }
+
+    @Override
+    public void visit(final Subtraction expr) {
+      final Expression leftExpression = expr.getLeftExpression();
+      if (leftExpression != null) {
+        leftExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+      SqlEnum.SUB.append(sqlBuilder);
+      final Expression rightExpression = expr.getRightExpression();
+      if (rightExpression != null) {
+        rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+    }
+
+    @Override
+    public void visit(final Multiplication expr) {
+      final Expression leftExpression = expr.getLeftExpression();
+      if (leftExpression != null) {
+        leftExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+      SqlEnum.ASTERISK.append(sqlBuilder);
+      final Expression rightExpression = expr.getRightExpression();
+      if (rightExpression != null) {
+        rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+    }
+
+    @Override
+    public void visit(final ExistsExpression expr) {
+      SqlEnum.EXISTS.append(sqlBuilder);
+      final Expression subSelect = expr.getRightExpression();
+      if (subSelect != null) {
+        subSelect.accept(DMExpressionVisitor.getEnd(context));
+      }
     }
 
     @Override

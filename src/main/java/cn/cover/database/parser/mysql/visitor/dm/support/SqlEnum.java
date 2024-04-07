@@ -44,7 +44,8 @@ public enum SqlEnum {
   CAST,
   INTERVAL,
   DIV,
-  BETWEEN ,
+  BETWEEN,
+  EXISTS,
 
 
 
@@ -62,6 +63,8 @@ public enum SqlEnum {
   GREAT(">"),
   WHITE_SPACE(" ", false),
   DIVISION("/"),
+  ADD(" + "),
+  SUB(" - "),
   ;
 
   private final String name;
