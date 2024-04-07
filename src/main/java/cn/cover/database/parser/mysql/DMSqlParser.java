@@ -30,7 +30,7 @@ public class DMSqlParser implements Parser {
       LOGGER.info("原始的sql：{}。\n转换之后的sql: {}", originSQL, sql);
       return new RawSQL(sql);
     } catch (JSQLParserException e) {
-      LOGGER.info("jsqlparser解析异常。", e);
+      LOGGER.info("Translate sql={}解析异常。", originSQL, e);
       throw new SqlTranslateException(e.getMessage());
     }
   }
