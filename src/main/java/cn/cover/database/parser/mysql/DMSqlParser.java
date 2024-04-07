@@ -7,7 +7,6 @@ import cn.cover.database.parser.mysql.visitor.dm.DMStatementVisitor;
 import cn.cover.database.sql.RawSQL;
 import cn.cover.database.sql.SQL;
 import cn.cover.exception.SqlTranslateException;
-import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import org.slf4j.Logger;
@@ -27,9 +26,9 @@ public class DMSqlParser implements Parser {
       Context context = ContextImpl.newInstance(originSQL);
       stmt.accept(new DMStatementVisitor(context));
       final String sql = context.sqlBuild().toString();
-      LOGGER.info("原始的sql：{}。\n转换之后的sql: {}", originSQL, sql);
+      LOGGER.info("原始的sql：{}。转换之后的sql: {}", originSQL, sql);
       return new RawSQL(sql);
-    } catch (JSQLParserException e) {
+    } catch (Exception e) {
       LOGGER.info("Translate sql={}解析异常。", originSQL, e);
       throw new SqlTranslateException(e.getMessage());
     }
