@@ -2,6 +2,7 @@ package mybatis.mapper;
 
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Map;
 
 public interface TestMapper {
@@ -15,4 +16,9 @@ public interface TestMapper {
      * 达梦
      */
     Map<Object, Object> dmSelect(@Param("id") Integer id);
+    
+    /**
+     * foreach
+     */
+    Map<Object, Object> dmSelectForeach(List<Integer> list);
 }

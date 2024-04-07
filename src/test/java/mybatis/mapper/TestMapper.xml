@@ -12,4 +12,11 @@
             and id = ${id}1
         </if>
     </select>
+
+    <select id="dmSelectForeach" resultType="java.util.Map">
+        select * from test_table where id in
+            <foreach collection="list" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+    </select>
 </mapper>

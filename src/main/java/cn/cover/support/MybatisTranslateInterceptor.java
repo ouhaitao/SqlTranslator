@@ -12,6 +12,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.Properties;
 
 /**
@@ -30,7 +31,15 @@ public class MybatisTranslateInterceptor implements Interceptor {
     
     private final SqlTranslator sqlTranslator;
     
+    private Field boundSql;
+    
     public MybatisTranslateInterceptor(SqlTranslator sqlTranslator) {
+        try {
+            boundSql = BoundSql.class.getDeclaredField("sql");
+            boundSql.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            logger.error("初始化失败", e);
+        }
         this.sqlTranslator = sqlTranslator;
     }
     
@@ -70,7 +79,12 @@ public class MybatisTranslateInterceptor implements Interceptor {
      * @param translateSql 翻译之后的sql
      */
     private BoundSql newBoundSql(MappedStatement statement, BoundSql originBoundSql, String translateSql) {
-        return new BoundSql(statement.getConfiguration(), translateSql, originBoundSql.getParameterMappings(), originBoundSql.getParameterObject());
+        try {
+            boundSql.set(originBoundSql, translateSql);
+        } catch (IllegalAccessException e) {
+            logger.error("更新sql失败");
+        }
+        return originBoundSql;
     }
     
     /**
@@ -81,10 +95,10 @@ public class MybatisTranslateInterceptor implements Interceptor {
      * @param translateSql 翻译之后的sql
      */
     private MappedStatement newMappedStatement(MappedStatement statement, BoundSql boundSql, String translateSql) {
-        SqlSource staticSqlSource = new StaticSqlSource(statement.getConfiguration(), translateSql, boundSql.getParameterMappings());
+        sqlSourceWrapper sqlSourceWrapper = new sqlSourceWrapper(newBoundSql(statement, boundSql, translateSql));
         
         // 复制属性
-        MappedStatement.Builder builder = new MappedStatement.Builder(statement.getConfiguration(), statement.getId(), staticSqlSource, statement.getSqlCommandType());
+        MappedStatement.Builder builder = new MappedStatement.Builder(statement.getConfiguration(), statement.getId(), sqlSourceWrapper, statement.getSqlCommandType());
         builder.resource(statement.getResource());
         builder.parameterMap(statement.getParameterMap());
         builder.resultMaps(statement.getResultMaps());
@@ -127,5 +141,18 @@ public class MybatisTranslateInterceptor implements Interceptor {
     @Override
     public void setProperties(Properties properties) {
     
+    }
+    
+    class sqlSourceWrapper implements SqlSource {
+        private BoundSql boundSql;
+    
+        public sqlSourceWrapper(BoundSql boundSql) {
+            this.boundSql = boundSql;
+        }
+    
+        @Override
+        public BoundSql getBoundSql(Object parameterObject) {
+            return boundSql;
+        }
     }
 }

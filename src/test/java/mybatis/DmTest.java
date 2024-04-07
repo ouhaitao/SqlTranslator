@@ -15,6 +15,8 @@ import org.junit.Test;
 import util.SqlTranslatorUtil;
 
 import javax.sql.DataSource;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,5 +56,13 @@ public class DmTest {
         Map<Object, Object> select = testMapper.dmSelect(1);
         select.forEach((key, value) -> System.out.println(key + ":" + value));
         select = testMapper.dmSelect(2);
+    }
+    
+    @Test
+    public void testForeach() {
+        List<Integer> list = new LinkedList<>();
+        list.add(1);
+        Map<Object, Object> select = testMapper.dmSelectForeach(list);
+        select.forEach((key, value) -> System.out.println(key + ":" + value));
     }
 }
