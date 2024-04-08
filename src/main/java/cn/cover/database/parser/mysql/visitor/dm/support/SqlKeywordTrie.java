@@ -22,6 +22,7 @@ public class SqlKeywordTrie {
   enum Keyword {
     // A
     ABORT("ABORT", KeyType.COMMON),
+    AUDIT("AUDIT", KeyType.COMMON),
     ABSOLUTE("ABSOLUTE", KeyType.RESERVED),
     ABSTRACT("ABSTRACT", KeyType.RESERVED),
     ACCESSED("ACCESSED", KeyType.COMMON),
