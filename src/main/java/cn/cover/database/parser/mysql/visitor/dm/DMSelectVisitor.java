@@ -435,7 +435,10 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
           dataType = "BOOLEAN";
         }
         SqlEnum.AS.append(sqlBuilder);
-        sqlBuilder.appendClose(dataType.toUpperCase());
+        // 达梦不支持UNSIGNED
+        String upperCase = dataType.toUpperCase();
+        upperCase = upperCase.replace("UNSIGNED", "").replace("unsigned", "");
+        sqlBuilder.appendClose(upperCase);
       }
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
       if (!lastOne) {

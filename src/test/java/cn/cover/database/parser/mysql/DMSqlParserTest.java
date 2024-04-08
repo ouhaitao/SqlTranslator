@@ -29,7 +29,11 @@ public class DMSqlParserTest {
     //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
 
 
-    String sql = "select a from aa where a.id in(1,2,3) and ";
+    String sql = "UPDATE\n"
+        + "       fm_common_sysconfig\n"
+        + "        set `value` = ? \n"
+        + "        WHERE\n"
+        + "        `key` = ?";
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
