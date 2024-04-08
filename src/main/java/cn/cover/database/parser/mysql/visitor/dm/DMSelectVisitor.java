@@ -393,6 +393,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       if (usingBrackets) {
         SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
       }
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
 
     @Override
@@ -435,6 +438,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         sqlBuilder.appendClose(dataType.toUpperCase());
       }
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
 
     @Override
@@ -448,6 +454,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       Expression rightExpression = expr.getRightExpression();
       if (rightExpression != null) {
         rightExpression.accept(dmExpressionVisitor);
+      }
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
       }
     }
 
@@ -494,16 +503,21 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(TimeKeyExpression timeKeyExpression) {
-      super.visit(timeKeyExpression);
       String stringValue = timeKeyExpression.getStringValue();
       if (StringUtil.isNotBlank(stringValue)) {
         sqlBuilder.append(stringValue);
+        if (!lastOne) {
+          SqlEnum.COMMA.append(sqlBuilder);
+        }
       }
     }
 
     @Override
     public void visit(final AllColumns allColumns) {
       SqlEnum.ASTERISK.append(sqlBuilder);
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
 
     @Override

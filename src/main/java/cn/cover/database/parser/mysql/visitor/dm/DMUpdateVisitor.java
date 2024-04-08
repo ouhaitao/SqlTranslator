@@ -45,14 +45,16 @@ public class DMUpdateVisitor {
     visitorUpdateSets(updateSets);
     final Expression where = update.getWhere();
     if (where != null) {
-      sqlBuilder.append(" WHERE ");
+      //sqlBuilder.append(" WHERE ");
+      SqlEnum.WHERE.append(sqlBuilder);
       where.accept(DMExpressionVisitor.getEnd(context));
     }
   }
 
   private void visitorUpdateSets(final ArrayList<UpdateSet> updateSets) {
     if (updateSets != null && !updateSets.isEmpty()) {
-      sqlBuilder.append("SET ");
+      //sqlBuilder.append("SET ");
+      SqlEnum.SET.append(sqlBuilder);
       for (int i = 0, size = (updateSets.size() - 1); i <= size; i++) {
         final UpdateSet updateSet = updateSets.get(i);
         final ArrayList<Column> columns = updateSet.getColumns();
@@ -69,13 +71,15 @@ public class DMUpdateVisitor {
             }
             final Column column = columns.get(i1);
             column.accept(dmExpressionVisitor);
-            sqlBuilder.append("=");
+            SqlEnum.EQUALS.append(sqlBuilder);
+            //sqlBuilder.append("=");
             final Expression expression = expressions.get(i1);
             expression.accept(dmExpressionVisitor);
           }
         }
         if (i != size) {
-          sqlBuilder.append(", ");
+          SqlEnum.COMMA.append(sqlBuilder);
+          //sqlBuilder.append(", ");
         }
       }
     }
