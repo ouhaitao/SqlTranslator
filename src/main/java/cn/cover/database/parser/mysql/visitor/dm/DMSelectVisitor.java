@@ -303,7 +303,13 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(final AllColumns columns) {
-      columns.accept((ExpressionVisitor) DMExpressionVisitor.getEnd(context));
+      ExpressionVisitor end = DMExpressionVisitor.getEnd(context);
+      ExpressionVisitor notEnd = DMExpressionVisitor.getNotEnd(context);
+      if (lastOne) {
+        columns.accept(end);
+      } else {
+        columns.accept(notEnd);
+      }
     }
 
     @Override
@@ -693,6 +699,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
         SqlEnum.NOT.append(sqlBuilder);
       }
       SqlEnum.NULL.append(sqlBuilder);
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
 
     @Override

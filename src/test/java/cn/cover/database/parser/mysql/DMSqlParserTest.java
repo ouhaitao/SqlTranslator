@@ -29,11 +29,7 @@ public class DMSqlParserTest {
     //String sql = "SELECT ur.role_id roleId, ur.user_id userId FROM fm_user_userrole ur WHERE ur.user_id=?";
 
 
-    String sql = "UPDATE\n"
-        + "       fm_common_sysconfig\n"
-        + "        set `value` = ? \n"
-        + "        WHERE\n"
-        + "        `key` = ?";
+    String sql = "SELECT *,sk.index_id sk_index_id FROM fm_news_channelnews cn LEFT JOIN fm_news_allinhead ah ON cn.news_id = ah.news_id  LEFT JOIN fm_news_subjectkind sk ON cn.sk_id=sk.id AND sk.subject_id=? WHERE cn.channel_type=? AND cn.news_id=? AND cn.channel_id=? LIMIT 1";
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }

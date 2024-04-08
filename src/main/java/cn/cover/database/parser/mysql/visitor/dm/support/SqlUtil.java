@@ -4,7 +4,10 @@ import cn.cover.database.parser.mysql.visitor.dm.Context;
 import cn.cover.database.parser.mysql.visitor.dm.DMSelectVisitor.DMExpressionVisitor;
 import java.util.Collection;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Database;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.IntoTableVisitor;
+import net.sf.jsqlparser.statement.select.IntoTableVisitorAdapter;
 
 /**
  * @Use
@@ -52,8 +55,28 @@ public class SqlUtil {
       return null;
     }
     StringBuilder sqlBuilder = new StringBuilder();
+
+    String schema = "";
+
+    String schemaName = table.getSchemaName();
+    if (schemaName != null && !schemaName.isEmpty()) {
+      schemaName = schemaName.replaceAll(BACKTICK, "");
+      schemaName = CommonVisitor.dealKeyword(schemaName.toUpperCase());
+      schema += schemaName;
+      schema += SqlUtil.DOT;
+      //sqlBuilder.append(schemaName);
+      //SqlEnum.DOT.append(sqlBuilder);
+    }
     String tableName = table.getName().replaceAll(BACKTICK, "");
-    sqlBuilder.append(CommonVisitor.dealKeyword(tableName.toUpperCase()));
+    final String tableUpper = CommonVisitor.dealKeyword(tableName.toUpperCase());
+    //sqlBuilder.append(tableUpper);
+    schema += tableUpper;
+    if (schema.equalsIgnoreCase("INFORMATION_SCHEMA.TABLES")) {
+      schema = "DBA_TABLES";
+    }
+
+    sqlBuilder.append(schema);
+
     if (table.getAlias() != null) {
       sqlBuilder.append(WHITE_SPACE);
       String tableAlias = table.getAlias().getName();
