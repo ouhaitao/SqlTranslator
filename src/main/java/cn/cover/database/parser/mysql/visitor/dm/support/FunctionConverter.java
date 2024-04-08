@@ -29,6 +29,9 @@ public class FunctionConverter {
           StringValue exp = (StringValue) expression1;
           final String format = exp.getValue();
           placeholder = CharMatcher.inRange('0', '9').retainFrom(format);
+          if (placeholder.isEmpty()) {
+            return false;
+          }
           isEnd = format.trim().endsWith(placeholder);
           // yyyyMMddHHmmss
           replaceFormat = format.replace(placeholder, "")
