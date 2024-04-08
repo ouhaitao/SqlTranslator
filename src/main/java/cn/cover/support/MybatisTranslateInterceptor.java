@@ -55,9 +55,7 @@ public class MybatisTranslateInterceptor implements Interceptor {
         } else {
             originBoundSql = statement.getBoundSql(parameter);
         }
-        long start = System.currentTimeMillis();
         String translateSql = sqlTranslator.translate(originBoundSql.getSql(), statement.getId());
-        long translateSqlTime = System.currentTimeMillis();
         if (logger.isDebugEnabled()) {
             logger.debug("原始SQL:{} 转译后SQL:{}", originBoundSql.getSql(), translateSql);
         }
@@ -70,8 +68,6 @@ public class MybatisTranslateInterceptor implements Interceptor {
             MappedStatement newMappedStatement = newMappedStatement(statement, originBoundSql, translateSql);
             invocationArgs[0] = newMappedStatement;
         }
-        long updateInvocationArgsTime = System.currentTimeMillis();
-        logger.info("转译SQL耗时:{} 动态修改mybatis对象耗时:{}", translateSqlTime - start, updateInvocationArgsTime - translateSqlTime);
         return invocation.proceed();
     }
     
