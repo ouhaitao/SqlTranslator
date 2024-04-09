@@ -851,6 +851,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       if (rightExpression != null) {
         rightExpression.accept(DMExpressionVisitor.getEnd(context));
       }
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
 
     @Override
@@ -865,6 +868,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       if (rightExpression != null) {
         rightExpression.accept(DMExpressionVisitor.getEnd(context));
       }
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
 
     @Override
@@ -877,6 +883,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       final Expression rightExpression = expr.getRightExpression();
       if (rightExpression != null) {
         rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      }
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
       }
     }
 
@@ -892,6 +901,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       if (rightExpression != null) {
         rightExpression.accept(DMExpressionVisitor.getEnd(context));
       }
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
 
     @Override
@@ -901,6 +913,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       SqlEnum.OR.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
 
     @Override
@@ -910,6 +925,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       SqlEnum.NOT_EQUALS.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
   }
 
