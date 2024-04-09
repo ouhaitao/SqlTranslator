@@ -45,12 +45,15 @@ public class SqlKeywordTrie {
     DESC("DESC", KeyType.COMMON),
 
     ORDER("ORDER", KeyType.COMMON),
+    OPEN("OPEN", KeyType.COMMON),
 
     RENAME("RENAME", KeyType.COMMON),
+    RULE("RULE", KeyType.COMMON),
 
     PASSWORD("PASSWORD", KeyType.COMMON),
     INDEX("INDEX", KeyType.COMMON),
     STATUS("STATUS", KeyType.COMMON),
+    SHOW("SHOW", KeyType.COMMON),
     SIZE("SIZE", KeyType.COMMON),
 
     ;
