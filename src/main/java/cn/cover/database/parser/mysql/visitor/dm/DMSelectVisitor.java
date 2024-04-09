@@ -665,6 +665,9 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
       SqlEnum.EQUALS.append(sqlBuilder);
       final Expression rightExpression = expr.getRightExpression();
       rightExpression.accept(DMExpressionVisitor.getEnd(context));
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
     }
 
     @Override

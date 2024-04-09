@@ -30,9 +30,16 @@ public class DMSqlParserTest {
 
 
 
-    String sql = "SELECT t.id,t.title,t.topic_desc,t.pic_url,t.img_31,t.create_time,t.is_hot,t.audit_type,t.is_disable,t.topic_rule,t.pic_url,t.topic_type,if(count(ut.id)>0 , 1 , 0) follow_status FROM fm_topic_topic  t\n"
-        + "        LEFT join fm_user_usertopic ut\n"
-        + "        ON t.id = ut.topic_id GROUP BY t.id";
+    String sql = "select  \n"
+        + "n.id,n.title_list, n.city, n.list_kind,\n"
+        + "        n.news_kind,n.img_43,n.img_32,n.img_169,n.img_21,n.img_195,n.img_pc,n.img_85,nd.review_count,nd.reply_count,nd.praise_count,n.source_id,n.is_subject, n.brief, n.date_create,n.date_update, n.author,n.is_cbgc_old_version,n.ar_uniqid\n"
+        + ",n.external_url,IF(n.news_reply_strategy=2,0,1) news_reply_strategy\n"
+        + " ,n.date_publish, n.common_live_id, n.ext_kind, IFNULL(IFNULL(cs.show_name, cs.name),up.pro_account) AS source, n.author\n"
+        + "        ,n.img_list\n"
+        + "from fm_news_news n\n"
+        + "LEFT JOIN fm_common_source cs ON n.source_id = cs.id\n"
+        + "LEFT JOIN fm_news_newsdynamic nd ON n.id=nd.news_id\n"
+        + "LEFT JOIN fm_user_prouserprofile up ON n.creator = up.pgc_id";
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }
