@@ -26,6 +26,7 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.MySQLGroupConcat;
 import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.RowConstructor;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.TimeKeyExpression;
 import net.sf.jsqlparser.expression.WhenClause;
@@ -453,6 +454,17 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
     }
 
     @Override
+    public void visit(final RowConstructor rowConstructor) {
+      final ExpressionList exprList = rowConstructor.getExprList();
+      SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
+      DMExpressionVisitor.expressionListVisitor(exprList.getExpressions(), context);
+      SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
+      if (!lastOne) {
+        SqlEnum.COMMA.append(sqlBuilder);
+      }
+    }
+
+    @Override
     public void visit(final Division expr) {
       Expression leftExpression = expr.getLeftExpression();
       DMExpressionVisitor dmExpressionVisitor = DMExpressionVisitor.getEnd(context);
@@ -742,7 +754,6 @@ public class DMSelectVisitor extends SelectVisitorAdapter {
 
     @Override
     public void visit(Between expr) {
-      super.visit(expr);
       if (expr.isNot()) {
         SqlEnum.NOT.append(sqlBuilder);
       }

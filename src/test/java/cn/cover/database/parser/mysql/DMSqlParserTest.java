@@ -30,7 +30,18 @@ public class DMSqlParserTest {
 
 
 
-    String sql = "select a+b,c from d where d.name like '%a%' and ";
+    String sql = "select id, name,target_num from fms_task where now() between date_begin and date_end and is_disable != -1"
+        ;
+
+
+    //String sql = "INSERT INTO \n"
+    //    + " \n"
+    //    + "items(name,city,price,number,picture) \n"
+    //    + " \n"
+    //    + "VALUES\n"
+    //    + " \n"
+    //    + "('耐克运动鞋','广州',500,1000,'003.jpg')"
+    //    ;
 
     System.out.println(DM_SQL_PARSER.parse(sql));
   }

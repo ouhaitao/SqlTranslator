@@ -44,10 +44,23 @@ public class DMInsertVisitor {
       SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
     }
     SqlEnum.VALUES.append(sqlBuilder);
-    SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
     final ItemsList itemsList = insert.getItemsList();
+    //if (itemsList.)
+    //SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
+    if (itemsList instanceof ExpressionList) {
+      ExpressionList expressionList = (ExpressionList)itemsList;
+      final boolean usingBrackets = expressionList.isUsingBrackets();
+      if (usingBrackets) {
+        SqlEnum.LEFT_PARENTHESIS.append(sqlBuilder);
+      }
+      expressionList.accept(new DMItemsListVisitor(context));
+      if (usingBrackets) {
+        SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
+      }
+      return;
+    }
     itemsList.accept(new DMItemsListVisitor(context));
-    SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
+    //SqlEnum.RIGHT_PARENTHESIS.append(sqlBuilder);
   }
 
   static class DMItemsListVisitor extends ItemsListVisitorAdapter {
