@@ -65,4 +65,10 @@ public class DmTest {
         Map<Object, Object> select = testMapper.dmSelectForeach(list);
         select.forEach((key, value) -> System.out.println(key + ":" + value));
     }
+    
+    @Test
+    public void testResultMapWithCollection() {
+        Map<Object, Object> select = testMapper.dmSelectCollection(1);
+        select.forEach((key, value) -> System.out.println(key + ":" + value));
+    }
 }

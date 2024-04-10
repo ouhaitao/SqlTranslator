@@ -21,4 +21,9 @@ public interface TestMapper {
      * foreach
      */
     Map<Object, Object> dmSelectForeach(List<Integer> list);
+    
+    /**
+     * resultMap中带有Collection
+     */
+    Map<Object, Object> dmSelectCollection(Integer id);
 }
